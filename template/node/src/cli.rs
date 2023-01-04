@@ -17,6 +17,7 @@ impl Default for Sealing {
 
 #[allow(missing_docs)]
 #[derive(Debug, clap::Parser)]
+#[group(skip)]
 pub struct RunCmd {
 	#[allow(missing_docs)]
 	#[command(flatten)]
