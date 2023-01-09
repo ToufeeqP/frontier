@@ -19,7 +19,7 @@
 use std::{collections::BTreeMap, marker::PhantomData, sync::Arc};
 
 use ethereum::BlockV2 as EthereumBlock;
-use ethereum_types::{H160, H256, U256};
+use ethereum_types::{H160 as EvmAddress, H256, U256};
 // Substrate
 use sp_api::{ApiExt, BlockId, ProvideRuntimeApi};
 use sp_io::hashing::{blake2_128, twox_128};
@@ -48,9 +48,9 @@ pub struct OverrideHandle<Block: BlockT> {
 /// optimized implementation avoids spawning a runtime and the overhead associated with it.
 pub trait StorageOverride<Block: BlockT> {
 	/// For a given account address, returns pallet_evm::AccountCodes.
-	fn account_code_at(&self, block: &BlockId<Block>, address: H160) -> Option<Vec<u8>>;
+	fn account_code_at(&self, block: &BlockId<Block>, address: EvmAddress) -> Option<Vec<u8>>;
 	/// For a given account address and index, returns pallet_evm::AccountStorages.
-	fn storage_at(&self, block: &BlockId<Block>, address: H160, index: U256) -> Option<H256>;
+	fn storage_at(&self, block: &BlockId<Block>, address: EvmAddress, index: U256) -> Option<H256>;
 	/// Return the current block.
 	fn current_block(&self, block: &BlockId<Block>) -> Option<EthereumBlock>;
 	/// Return the current receipt.
@@ -101,7 +101,7 @@ where
 	C::Api: EthereumRuntimeRPCApi<Block>,
 {
 	/// For a given account address, returns pallet_evm::AccountCodes.
-	fn account_code_at(&self, block: &BlockId<Block>, address: H160) -> Option<Vec<u8>> {
+	fn account_code_at(&self, block: &BlockId<Block>, address: EvmAddress) -> Option<Vec<u8>> {
 		self.client
 			.runtime_api()
 			.account_code_at(block, address)
@@ -109,7 +109,7 @@ where
 	}
 
 	/// For a given account address and index, returns pallet_evm::AccountStorages.
-	fn storage_at(&self, block: &BlockId<Block>, address: H160, index: U256) -> Option<H256> {
+	fn storage_at(&self, block: &BlockId<Block>, address: EvmAddress, index: U256) -> Option<H256> {
 		self.client
 			.runtime_api()
 			.storage_at(block, address, index)

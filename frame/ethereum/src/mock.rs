@@ -27,7 +27,7 @@ use frame_support::{
 };
 use pallet_evm::{AddressMapping, EnsureAddressTruncated, FeeCalculator};
 use rlp::RlpStream;
-use sp_core::{hashing::keccak_256, H160, H256, U256};
+use sp_core::{hashing::keccak_256, H160 as EvmAddress, H256, U256};
 use sp_runtime::{
 	testing::Header,
 	traits::{BlakeTwo256, IdentityLookup},
@@ -125,8 +125,8 @@ impl FeeCalculator for FixedGasPrice {
 }
 
 pub struct FindAuthorTruncated;
-impl FindAuthor<H160> for FindAuthorTruncated {
-	fn find_author<'a, I>(_digests: I) -> Option<H160>
+impl FindAuthor<EvmAddress> for FindAuthorTruncated {
+	fn find_author<'a, I>(_digests: I) -> Option<EvmAddress>
 	where
 		I: 'a + IntoIterator<Item = (ConsensusEngineId, &'a [u8])>,
 	{
@@ -145,7 +145,7 @@ parameter_types! {
 pub struct HashedAddressMapping;
 
 impl AddressMapping<AccountId32> for HashedAddressMapping {
-	fn into_account_id(address: H160) -> AccountId32 {
+	fn into_account_id(address: EvmAddress) -> AccountId32 {
 		let mut data = [0u8; 32];
 		data[0..20].copy_from_slice(&address[..]);
 		AccountId32::from(Into::<[u8; 32]>::into(data))
@@ -177,7 +177,7 @@ impl Config for Test {
 }
 
 impl fp_self_contained::SelfContainedCall for RuntimeCall {
-	type SignedInfo = H160;
+	type SignedInfo = EvmAddress;
 
 	fn is_self_contained(&self) -> bool {
 		match self {
@@ -233,7 +233,7 @@ impl fp_self_contained::SelfContainedCall for RuntimeCall {
 }
 
 pub struct AccountInfo {
-	pub address: H160,
+	pub address: EvmAddress,
 	pub account_id: AccountId32,
 	pub private_key: H256,
 }
@@ -242,7 +242,7 @@ fn address_build(seed: u8) -> AccountInfo {
 	let private_key = H256::from_slice(&[(seed + 1) as u8; 32]); //H256::from_low_u64_be((i + 1) as u64);
 	let secret_key = libsecp256k1::SecretKey::parse_slice(&private_key[..]).unwrap();
 	let public_key = &libsecp256k1::PublicKey::from_secret_key(&secret_key).serialize()[1..65];
-	let address = H160::from(H256::from(keccak_256(public_key)));
+	let address = EvmAddress::from(H256::from(keccak_256(public_key)));
 
 	let mut data = [0u8; 32];
 	data[0..20].copy_from_slice(&address[..]);
@@ -303,15 +303,15 @@ pub fn new_test_ext_with_initial_balance(
 	(pairs, ext.into())
 }
 
-pub fn contract_address(sender: H160, nonce: u64) -> H160 {
+pub fn contract_address(sender: EvmAddress, nonce: u64) -> EvmAddress {
 	let mut rlp = RlpStream::new_list(2);
 	rlp.append(&sender);
 	rlp.append(&nonce);
 
-	H160::from_slice(&keccak_256(&rlp.out())[12..])
+	EvmAddress::from_slice(&keccak_256(&rlp.out())[12..])
 }
 
-pub fn storage_address(sender: H160, slot: H256) -> H256 {
+pub fn storage_address(sender: EvmAddress, slot: H256) -> H256 {
 	H256::from(keccak_256(
 		[&H256::from(sender)[..], &slot[..]].concat().as_slice(),
 	))

@@ -23,7 +23,7 @@ use crate::mock::*;
 use codec::Encode;
 use fp_evm::{Context, GenesisAccount};
 use frame_support::{assert_ok, traits::GenesisBuild};
-use sp_core::{H160, U256};
+use sp_core::{H160 as EvmAddress, U256};
 use std::{collections::BTreeMap, str::FromStr};
 
 pub fn new_test_ext() -> sp_io::TestExternalities {
@@ -33,7 +33,7 @@ pub fn new_test_ext() -> sp_io::TestExternalities {
 
 	let mut accounts = BTreeMap::new();
 	accounts.insert(
-		H160::from_str("1000000000000000000000000000000000000001").unwrap(),
+		EvmAddress::from_str("1000000000000000000000000000000000000001").unwrap(),
 		GenesisAccount {
 			nonce: U256::from(1),
 			balance: U256::from(1000000),
@@ -44,7 +44,7 @@ pub fn new_test_ext() -> sp_io::TestExternalities {
 		},
 	);
 	accounts.insert(
-		H160::from_str("1000000000000000000000000000000000000002").unwrap(),
+		EvmAddress::from_str("1000000000000000000000000000000000000002").unwrap(),
 		GenesisAccount {
 			nonce: U256::from(1),
 			balance: U256::from(1000000),
@@ -55,7 +55,7 @@ pub fn new_test_ext() -> sp_io::TestExternalities {
 		},
 	);
 	accounts.insert(
-		H160::default(), // root
+		EvmAddress::default(), // root
 		GenesisAccount {
 			nonce: U256::from(1),
 			balance: U256::max_value(),
@@ -67,7 +67,7 @@ pub fn new_test_ext() -> sp_io::TestExternalities {
 	pallet_balances::GenesisConfig::<Test> {
 		// Create the block author account with some balance.
 		balances: vec![(
-			H160::from_str("0x1234500000000000000000000000000000000000").unwrap(),
+			EvmAddress::from_str("0x1234500000000000000000000000000000000000").unwrap(),
 			12345,
 		)],
 	}
@@ -95,8 +95,8 @@ fn decode_limit_too_high() {
 		let mut handle = MockHandle {
 			input: nested_call.encode(),
 			context: Context {
-				address: H160::default(),
-				caller: H160::default(),
+				address: EvmAddress::default(),
+				caller: EvmAddress::default(),
 				apparent_value: U256::default(),
 			},
 		};
@@ -126,8 +126,8 @@ fn decode_limit_ok() {
 		let mut handle = MockHandle {
 			input: nested_call.encode(),
 			context: Context {
-				address: H160::default(),
-				caller: H160::default(),
+				address: EvmAddress::default(),
+				caller: EvmAddress::default(),
 				apparent_value: U256::default(),
 			},
 		};

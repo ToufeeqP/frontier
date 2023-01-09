@@ -16,7 +16,7 @@
 // limitations under the License.
 
 use frame_support::{parameter_types, traits::ConstU32, weights::Weight};
-use sp_core::{H160, H256};
+use sp_core::{H160 as EvmAddress, H256};
 use sp_runtime::{
 	testing::Header,
 	traits::{BlakeTwo256, IdentityLookup},
@@ -61,7 +61,7 @@ impl frame_system::Config for Test {
 	type BlockNumber = u64;
 	type Hash = H256;
 	type Hashing = BlakeTwo256;
-	type AccountId = H160;
+	type AccountId = EvmAddress;
 	type Lookup = IdentityLookup<Self::AccountId>;
 	type Header = Header;
 	type RuntimeEvent = RuntimeEvent;

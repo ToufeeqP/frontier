@@ -19,7 +19,7 @@
 //! Return types for RPC calls
 
 use crate::types::Bytes;
-use ethereum_types::{Address, Public, H160, H256, U256};
+use ethereum_types::{Address, Public, H160 as EvmAddress, H256, U256};
 use serde::Serialize;
 
 /// Account information.
@@ -42,7 +42,7 @@ pub struct StorageProof {
 #[derive(Clone, Debug, Default, Eq, PartialEq, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct EthAccount {
-	pub address: H160,
+	pub address: EvmAddress,
 	pub balance: U256,
 	pub nonce: U256,
 	pub code_hash: H256,

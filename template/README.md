@@ -156,7 +156,7 @@ that provides the address of the newly-created contract:
 # UI:
 evm.Created
 A contract has been created at given [address]
-   H160: 0x8a50db1e0f9452cfd91be8dc004ceb11cb08832f
+   EvmAddress: 0x8a50db1e0f9452cfd91be8dc004ceb11cb08832f
 ```
 
 In this case, however, it is trivial to

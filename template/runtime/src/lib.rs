@@ -14,7 +14,7 @@ use sp_api::impl_runtime_apis;
 use sp_consensus_aura::sr25519::AuthorityId as AuraId;
 use sp_core::{
 	crypto::{ByteArray, KeyTypeId},
-	OpaqueMetadata, H160, H256, U256,
+	OpaqueMetadata, H160 as EvmAddress, H256, U256,
 };
 use sp_runtime::{
 	create_runtime_str, generic, impl_opaque_keys,
@@ -294,14 +294,14 @@ impl pallet_sudo::Config for Runtime {
 impl pallet_evm_chain_id::Config for Runtime {}
 
 pub struct FindAuthorTruncated<F>(PhantomData<F>);
-impl<F: FindAuthor<u32>> FindAuthor<H160> for FindAuthorTruncated<F> {
-	fn find_author<'a, I>(digests: I) -> Option<H160>
+impl<F: FindAuthor<u32>> FindAuthor<EvmAddress> for FindAuthorTruncated<F> {
+	fn find_author<'a, I>(digests: I) -> Option<EvmAddress>
 	where
 		I: 'a + IntoIterator<Item = (ConsensusEngineId, &'a [u8])>,
 	{
 		if let Some(author_index) = F::find_author(digests) {
 			let authority_id = Aura::authorities()[author_index as usize].clone();
-			return Some(H160::from_slice(&authority_id.to_raw_vec()[4..24]));
+			return Some(EvmAddress::from_slice(&authority_id.to_raw_vec()[4..24]));
 		}
 		None
 	}
@@ -449,7 +449,7 @@ pub type UncheckedExtrinsic =
 	fp_self_contained::UncheckedExtrinsic<Address, RuntimeCall, Signature, SignedExtra>;
 /// Extrinsic type that has already been checked.
 pub type CheckedExtrinsic =
-	fp_self_contained::CheckedExtrinsic<AccountId, RuntimeCall, SignedExtra, H160>;
+	fp_self_contained::CheckedExtrinsic<AccountId, RuntimeCall, SignedExtra, EvmAddress>;
 /// The payload being signed in transactions.
 pub type SignedPayload = generic::SignedPayload<RuntimeCall, SignedExtra>;
 /// Executive: handles dispatch to the various modules.
@@ -462,7 +462,7 @@ pub type Executive = frame_executive::Executive<
 >;
 
 impl fp_self_contained::SelfContainedCall for RuntimeCall {
-	type SignedInfo = H160;
+	type SignedInfo = EvmAddress;
 
 	fn is_self_contained(&self) -> bool {
 		match self {
@@ -607,7 +607,7 @@ impl_runtime_apis! {
 			<Runtime as pallet_evm::Config>::ChainId::get()
 		}
 
-		fn account_basic(address: H160) -> EVMAccount {
+		fn account_basic(address: EvmAddress) -> EVMAccount {
 			let (account, _) = EVM::account_basic(&address);
 			account
 		}
@@ -617,23 +617,23 @@ impl_runtime_apis! {
 			gas_price
 		}
 
-		fn account_code_at(address: H160) -> Vec<u8> {
+		fn account_code_at(address: EvmAddress) -> Vec<u8> {
 			EVM::account_codes(address)
 		}
 
-		fn author() -> H160 {
+		fn author() -> EvmAddress {
 			<pallet_evm::Pallet<Runtime>>::find_author()
 		}
 
-		fn storage_at(address: H160, index: U256) -> H256 {
+		fn storage_at(address: EvmAddress, index: U256) -> H256 {
 			let mut tmp = [0u8; 32];
 			index.to_big_endian(&mut tmp);
 			EVM::account_storages(address, H256::from_slice(&tmp[..]))
 		}
 
 		fn call(
-			from: H160,
-			to: H160,
+			from: EvmAddress,
+			to: EvmAddress,
 			data: Vec<u8>,
 			value: U256,
 			gas_limit: U256,
@@ -641,7 +641,7 @@ impl_runtime_apis! {
 			max_priority_fee_per_gas: Option<U256>,
 			nonce: Option<U256>,
 			estimate: bool,
-			access_list: Option<Vec<(H160, Vec<H256>)>>,
+			access_list: Option<Vec<(EvmAddress, Vec<H256>)>>,
 		) -> Result<pallet_evm::CallInfo, sp_runtime::DispatchError> {
 			let config = if estimate {
 				let mut config = <Runtime as pallet_evm::Config>::config().clone();
@@ -671,7 +671,7 @@ impl_runtime_apis! {
 		}
 
 		fn create(
-			from: H160,
+			from: EvmAddress,
 			data: Vec<u8>,
 			value: U256,
 			gas_limit: U256,
@@ -679,7 +679,7 @@ impl_runtime_apis! {
 			max_priority_fee_per_gas: Option<U256>,
 			nonce: Option<U256>,
 			estimate: bool,
-			access_list: Option<Vec<(H160, Vec<H256>)>>,
+			access_list: Option<Vec<(EvmAddress, Vec<H256>)>>,
 		) -> Result<pallet_evm::CreateInfo, sp_runtime::DispatchError> {
 			let config = if estimate {
 				let mut config = <Runtime as pallet_evm::Config>::config().clone();

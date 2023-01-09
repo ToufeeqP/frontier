@@ -25,7 +25,7 @@ pub use evm::ExitReason;
 use frame_support::weights::Weight;
 #[cfg(feature = "std")]
 use serde::{Deserialize, Serialize};
-use sp_core::{H160, U256};
+use sp_core::{H160 as EvmAddress, U256};
 use sp_std::vec::Vec;
 
 pub use evm::backend::{Basic as Account, Log};
@@ -48,7 +48,7 @@ pub struct Vicinity {
 	/// Current transaction gas price.
 	pub gas_price: U256,
 	/// Origin of the transaction.
-	pub origin: H160,
+	pub origin: EvmAddress,
 }
 
 #[derive(Clone, Eq, PartialEq, Encode, Decode)]
@@ -61,7 +61,7 @@ pub struct ExecutionInfo<T> {
 }
 
 pub type CallInfo = ExecutionInfo<Vec<u8>>;
-pub type CreateInfo = ExecutionInfo<H160>;
+pub type CreateInfo = ExecutionInfo<EvmAddress>;
 
 #[derive(Clone, Eq, PartialEq, Encode, Decode)]
 #[cfg_attr(feature = "std", derive(Debug, Serialize, Deserialize))]

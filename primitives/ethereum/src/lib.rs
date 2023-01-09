@@ -22,7 +22,7 @@ pub use ethereum::{
 	AccessListItem, BlockV2 as Block, LegacyTransactionMessage, Log, ReceiptV3 as Receipt,
 	TransactionAction, TransactionV2 as Transaction,
 };
-use ethereum_types::{H160, H256, U256};
+use ethereum_types::{H160 as EvmAddress, H256, U256};
 use fp_evm::CheckEvmTransactionInput;
 use sp_std::vec::Vec;
 
@@ -41,7 +41,7 @@ pub enum TransactionValidationError {
 
 pub trait ValidatedTransaction {
 	fn apply(
-		source: H160,
+		source: EvmAddress,
 		transaction: Transaction,
 	) -> frame_support::dispatch::DispatchResultWithPostInfo;
 }
@@ -57,7 +57,7 @@ pub struct TransactionData {
 	pub max_priority_fee_per_gas: Option<U256>,
 	pub value: U256,
 	pub chain_id: Option<u64>,
-	pub access_list: Vec<(H160, Vec<H256>)>,
+	pub access_list: Vec<(EvmAddress, Vec<H256>)>,
 }
 
 impl From<TransactionData> for CheckEvmTransactionInput {

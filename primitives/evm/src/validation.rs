@@ -18,13 +18,13 @@
 
 pub use evm::backend::Basic as Account;
 use frame_support::sp_runtime::traits::UniqueSaturatedInto;
-use sp_core::{H160, H256, U256};
+use sp_core::{H160 as EvmAddress, H256, U256};
 use sp_std::vec::Vec;
 
 #[derive(Debug)]
 pub struct CheckEvmTransactionInput {
 	pub chain_id: Option<u64>,
-	pub to: Option<H160>,
+	pub to: Option<EvmAddress>,
 	pub input: Vec<u8>,
 	pub nonce: U256,
 	pub gas_limit: U256,
@@ -32,7 +32,7 @@ pub struct CheckEvmTransactionInput {
 	pub max_fee_per_gas: Option<U256>,
 	pub max_priority_fee_per_gas: Option<U256>,
 	pub value: U256,
-	pub access_list: Vec<(H160, Vec<H256>)>,
+	pub access_list: Vec<(EvmAddress, Vec<H256>)>,
 }
 
 #[derive(Debug)]
@@ -301,7 +301,7 @@ mod tests {
 			},
 			CheckEvmTransactionInput {
 				chain_id,
-				to: Some(H160::default()),
+				to: Some(EvmAddress::default()),
 				input: vec![],
 				nonce,
 				gas_limit,

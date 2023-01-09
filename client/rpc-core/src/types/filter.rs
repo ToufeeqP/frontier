@@ -17,7 +17,7 @@
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 use core::convert::AsRef;
-use ethereum_types::{Bloom, BloomInput, H160, H256, U256};
+use ethereum_types::{Bloom, BloomInput, H160 as EvmAddress, H256, U256};
 use serde::{
 	de::{DeserializeOwned, Error},
 	Deserialize, Deserializer, Serialize, Serializer,
@@ -66,7 +66,7 @@ where
 }
 
 /// Filter Address
-pub type FilterAddress = VariadicValue<H160>;
+pub type FilterAddress = VariadicValue<EvmAddress>;
 /// Topic, supports `A` | `null` | `[A,B,C]` | `[A,[B,C]]` | [null,[B,C]] | [null,[null,C]]
 pub type Topic = VariadicValue<Option<VariadicValue<Option<H256>>>>;
 /// FlatTopic, simplifies the matching logic.
@@ -74,8 +74,8 @@ pub type FlatTopic = VariadicValue<Option<H256>>;
 
 pub type BloomFilter<'a> = Vec<Option<Bloom>>;
 
-impl From<&VariadicValue<H160>> for Vec<Option<Bloom>> {
-	fn from(address: &VariadicValue<H160>) -> Self {
+impl From<&VariadicValue<EvmAddress>> for Vec<Option<Bloom>> {
+	fn from(address: &VariadicValue<EvmAddress>) -> Self {
 		let mut blooms = BloomFilter::new();
 		match address {
 			VariadicValue::Single(address) => {
@@ -471,7 +471,8 @@ mod tests {
 	use std::str::FromStr;
 
 	fn block_bloom() -> Bloom {
-		let test_address = H160::from_str("1000000000000000000000000000000000000000").unwrap();
+		let test_address =
+			EvmAddress::from_str("1000000000000000000000000000000000000000").unwrap();
 		let topic1 =
 			H256::from_str("1000000000000000000000000000000000000000000000000000000000000000")
 				.unwrap();
@@ -488,7 +489,8 @@ mod tests {
 
 	#[test]
 	fn bloom_filter_should_match_by_address() {
-		let test_address = H160::from_str("1000000000000000000000000000000000000000").unwrap();
+		let test_address =
+			EvmAddress::from_str("1000000000000000000000000000000000000000").unwrap();
 		let filter = Filter {
 			from_block: None,
 			to_block: None,
@@ -505,7 +507,8 @@ mod tests {
 
 	#[test]
 	fn bloom_filter_should_not_match_by_address() {
-		let test_address = H160::from_str("2000000000000000000000000000000000000000").unwrap();
+		let test_address =
+			EvmAddress::from_str("2000000000000000000000000000000000000000").unwrap();
 		let filter = Filter {
 			from_block: None,
 			to_block: None,
@@ -608,7 +611,8 @@ mod tests {
 	}
 	#[test]
 	fn bloom_filter_should_match_combined() {
-		let test_address = H160::from_str("1000000000000000000000000000000000000000").unwrap();
+		let test_address =
+			EvmAddress::from_str("1000000000000000000000000000000000000000").unwrap();
 		let topic1 =
 			H256::from_str("1000000000000000000000000000000000000000000000000000000000000000")
 				.unwrap();
@@ -642,7 +646,8 @@ mod tests {
 	}
 	#[test]
 	fn bloom_filter_should_not_match_combined() {
-		let test_address = H160::from_str("2000000000000000000000000000000000000000").unwrap();
+		let test_address =
+			EvmAddress::from_str("2000000000000000000000000000000000000000").unwrap();
 		let topic1 =
 			H256::from_str("1000000000000000000000000000000000000000000000000000000000000000")
 				.unwrap();

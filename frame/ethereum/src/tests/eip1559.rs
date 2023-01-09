@@ -169,7 +169,7 @@ fn transaction_with_to_low_nonce_should_not_work() {
 			transaction: signed,
 		};
 		let source = call.check_self_contained().unwrap().unwrap();
-		let extrinsic = CheckedExtrinsic::<u64, _, SignedExtra, H160> {
+		let extrinsic = CheckedExtrinsic::<u64, _, SignedExtra, EvmAddress> {
 			signed: fp_self_contained::CheckedSignature::SelfContained(source),
 			function: RuntimeCall::Ethereum(call.clone()),
 		};
@@ -376,7 +376,7 @@ fn call_should_handle_errors() {
 			max_priority_fee_per_gas: U256::from(1),
 			max_fee_per_gas: U256::from(1),
 			gas_limit: U256::from(0x100000),
-			action: TransactionAction::Call(H160::from_slice(&contract_address)),
+			action: TransactionAction::Call(EvmAddress::from_slice(&contract_address)),
 			value: U256::zero(),
 			input: foo,
 		}
@@ -400,7 +400,7 @@ fn call_should_handle_errors() {
 			max_priority_fee_per_gas: U256::from(1),
 			max_fee_per_gas: U256::from(1),
 			gas_limit: U256::from(0x100000),
-			action: TransactionAction::Call(H160::from_slice(&contract_address)),
+			action: TransactionAction::Call(EvmAddress::from_slice(&contract_address)),
 			value: U256::zero(),
 			input: bar,
 		}

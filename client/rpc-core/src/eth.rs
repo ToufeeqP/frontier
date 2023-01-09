@@ -18,7 +18,7 @@
 
 //! Eth rpc interface.
 
-use ethereum_types::{H160, H256, H64, U256, U64};
+use ethereum_types::{H160 as EvmAddress, H256, H64, U256, U64};
 use jsonrpsee::{core::RpcResult as Result, proc_macros::rpc};
 
 use crate::types::*;
@@ -41,11 +41,11 @@ pub trait EthApi {
 
 	/// Returns block author.
 	#[method(name = "eth_coinbase")]
-	fn author(&self) -> Result<H160>;
+	fn author(&self) -> Result<EvmAddress>;
 
 	/// Returns accounts list.
 	#[method(name = "eth_accounts")]
-	fn accounts(&self) -> Result<Vec<H160>>;
+	fn accounts(&self) -> Result<Vec<EvmAddress>>;
 
 	/// Returns highest block number.
 	#[method(name = "eth_blockNumber")]
@@ -131,19 +131,24 @@ pub trait EthApi {
 
 	/// Returns balance of the given account.
 	#[method(name = "eth_getBalance")]
-	fn balance(&self, address: H160, number: Option<BlockNumber>) -> Result<U256>;
+	fn balance(&self, address: EvmAddress, number: Option<BlockNumber>) -> Result<U256>;
 
 	/// Returns content of the storage at given address.
 	#[method(name = "eth_getStorageAt")]
-	fn storage_at(&self, address: H160, index: U256, number: Option<BlockNumber>) -> Result<H256>;
+	fn storage_at(
+		&self,
+		address: EvmAddress,
+		index: U256,
+		number: Option<BlockNumber>,
+	) -> Result<H256>;
 
 	/// Returns the number of transactions sent from given address at given time (block number).
 	#[method(name = "eth_getTransactionCount")]
-	fn transaction_count(&self, address: H160, number: Option<BlockNumber>) -> Result<U256>;
+	fn transaction_count(&self, address: EvmAddress, number: Option<BlockNumber>) -> Result<U256>;
 
 	/// Returns the code at given address at given time (block number).
 	#[method(name = "eth_getCode")]
-	fn code_at(&self, address: H160, number: Option<BlockNumber>) -> Result<Bytes>;
+	fn code_at(&self, address: EvmAddress, number: Option<BlockNumber>) -> Result<Bytes>;
 
 	// ########################################################################
 	// Execute

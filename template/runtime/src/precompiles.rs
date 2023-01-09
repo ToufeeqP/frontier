@@ -1,5 +1,5 @@
 use pallet_evm::{Precompile, PrecompileHandle, PrecompileResult, PrecompileSet};
-use sp_core::H160;
+use sp_core::H160 as EvmAddress;
 use sp_std::marker::PhantomData;
 
 use pallet_evm_precompile_modexp::Modexp;
@@ -15,7 +15,7 @@ where
 	pub fn new() -> Self {
 		Self(Default::default())
 	}
-	pub fn used_addresses() -> [H160; 7] {
+	pub fn used_addresses() -> [EvmAddress; 7] {
 		[
 			hash(1),
 			hash(2),
@@ -46,11 +46,11 @@ where
 		}
 	}
 
-	fn is_precompile(&self, address: H160) -> bool {
+	fn is_precompile(&self, address: EvmAddress) -> bool {
 		Self::used_addresses().contains(&address)
 	}
 }
 
-fn hash(a: u64) -> H160 {
-	H160::from_low_u64_be(a)
+fn hash(a: u64) -> EvmAddress {
+	EvmAddress::from_low_u64_be(a)
 }

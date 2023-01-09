@@ -15,7 +15,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use sp_core::H160;
+use sp_core::H160 as EvmAddress;
 
 use super::*;
 use crate::{
@@ -28,11 +28,11 @@ fn test_hotfix_inc_account_sufficients_returns_error_if_max_addresses_exceeded()
 	new_test_ext().execute_with(|| {
 		let max_address_count = 1000;
 		let addresses = (0..max_address_count + 1 as u64)
-			.map(H160::from_low_u64_le)
-			.collect::<Vec<H160>>();
+			.map(EvmAddress::from_low_u64_le)
+			.collect::<Vec<EvmAddress>>();
 
 		let result = <Pallet<Test>>::hotfix_inc_account_sufficients(
-			RuntimeOrigin::signed(H160::default()),
+			RuntimeOrigin::signed(EvmAddress::default()),
 			addresses,
 		);
 
@@ -44,7 +44,7 @@ fn test_hotfix_inc_account_sufficients_returns_error_if_max_addresses_exceeded()
 fn test_hotfix_inc_account_sufficients_requires_signed_origin() {
 	new_test_ext().execute_with(|| {
 		let addr = "1230000000000000000000000000000000000001"
-			.parse::<H160>()
+			.parse::<EvmAddress>()
 			.unwrap();
 		let unsigned_origin = RuntimeOrigin::root();
 		let result = <Pallet<Test>>::hotfix_inc_account_sufficients(unsigned_origin, vec![addr]);
@@ -57,10 +57,10 @@ fn test_hotfix_inc_account_sufficients_requires_signed_origin() {
 fn test_hotfix_inc_account_sufficients_increments_if_nonce_nonzero() {
 	new_test_ext().execute_with(|| {
 		let addr_1 = "1230000000000000000000000000000000000001"
-			.parse::<H160>()
+			.parse::<EvmAddress>()
 			.unwrap();
 		let addr_2 = "1234000000000000000000000000000000000001"
-			.parse::<H160>()
+			.parse::<EvmAddress>()
 			.unwrap();
 		let substrate_addr_1 = <Test as Config>::AddressMapping::into_account_id(addr_1);
 		let substrate_addr_2 = <Test as Config>::AddressMapping::into_account_id(addr_2);
@@ -75,7 +75,7 @@ fn test_hotfix_inc_account_sufficients_increments_if_nonce_nonzero() {
 		assert_eq!(account_2.sufficients, 0);
 
 		<Pallet<Test>>::hotfix_inc_account_sufficients(
-			RuntimeOrigin::signed(H160::default()),
+			RuntimeOrigin::signed(EvmAddress::default()),
 			vec![addr_1, addr_2],
 		)
 		.unwrap();
@@ -93,7 +93,7 @@ fn test_hotfix_inc_account_sufficients_increments_if_nonce_nonzero() {
 fn test_hotfix_inc_account_sufficients_increments_with_saturation_if_nonce_nonzero() {
 	new_test_ext().execute_with(|| {
 		let addr = "1230000000000000000000000000000000000001"
-			.parse::<H160>()
+			.parse::<EvmAddress>()
 			.unwrap();
 		let substrate_addr = <Test as Config>::AddressMapping::into_account_id(addr);
 
@@ -108,7 +108,7 @@ fn test_hotfix_inc_account_sufficients_increments_with_saturation_if_nonce_nonze
 		assert_eq!(account.nonce, 1);
 
 		<Pallet<Test>>::hotfix_inc_account_sufficients(
-			RuntimeOrigin::signed(H160::default()),
+			RuntimeOrigin::signed(EvmAddress::default()),
 			vec![addr],
 		)
 		.unwrap();
@@ -123,7 +123,7 @@ fn test_hotfix_inc_account_sufficients_increments_with_saturation_if_nonce_nonze
 fn test_hotfix_inc_account_sufficients_does_not_increment_if_both_nonce_and_refs_nonzero() {
 	new_test_ext().execute_with(|| {
 		let addr = "1230000000000000000000000000000000000001"
-			.parse::<H160>()
+			.parse::<EvmAddress>()
 			.unwrap();
 		let substrate_addr = <Test as Config>::AddressMapping::into_account_id(addr);
 
@@ -139,7 +139,7 @@ fn test_hotfix_inc_account_sufficients_does_not_increment_if_both_nonce_and_refs
 		assert_eq!(account.consumers, 1);
 
 		<Pallet<Test>>::hotfix_inc_account_sufficients(
-			RuntimeOrigin::signed(H160::default()),
+			RuntimeOrigin::signed(EvmAddress::default()),
 			vec![addr],
 		)
 		.unwrap();

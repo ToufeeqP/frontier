@@ -18,7 +18,7 @@
 
 use crate::types::Bytes;
 use ethereum::AccessListItem;
-use ethereum_types::{H160, U256};
+use ethereum_types::{H160 as EvmAddress, U256};
 use serde::Deserialize;
 
 /// Call request
@@ -27,9 +27,9 @@ use serde::Deserialize;
 #[serde(rename_all = "camelCase")]
 pub struct CallRequest {
 	/// From
-	pub from: Option<H160>,
+	pub from: Option<EvmAddress>,
 	/// To
-	pub to: Option<H160>,
+	pub to: Option<EvmAddress>,
 	/// Gas Price
 	pub gas_price: Option<U256>,
 	/// EIP-1559 Max base fee the caller is willing to pay

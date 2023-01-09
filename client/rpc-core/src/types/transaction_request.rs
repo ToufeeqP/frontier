@@ -22,7 +22,7 @@ use crate::types::Bytes;
 use ethereum::{
 	AccessListItem, EIP1559TransactionMessage, EIP2930TransactionMessage, LegacyTransactionMessage,
 };
-use ethereum_types::{H160, U256};
+use ethereum_types::{H160 as EvmAddress, U256};
 use serde::{Deserialize, Serialize};
 
 pub enum TransactionMessage {
@@ -37,9 +37,9 @@ pub enum TransactionMessage {
 #[serde(rename_all = "camelCase")]
 pub struct TransactionRequest {
 	/// Sender
-	pub from: Option<H160>,
+	pub from: Option<EvmAddress>,
 	/// Recipient
-	pub to: Option<H160>,
+	pub to: Option<EvmAddress>,
 	/// Gas Price, legacy.
 	#[serde(default)]
 	pub gas_price: Option<U256>,

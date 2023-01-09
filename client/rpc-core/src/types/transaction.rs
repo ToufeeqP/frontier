@@ -18,7 +18,7 @@
 
 use crate::types::Bytes;
 use ethereum::{AccessListItem, TransactionV2};
-use ethereum_types::{H160, H256, H512, U256, U64};
+use ethereum_types::{H160 as EvmAddress, H256, H512, U256, U64};
 use serde::{ser::SerializeStruct, Serialize, Serializer};
 
 /// Transaction
@@ -36,9 +36,9 @@ pub struct Transaction {
 	/// Transaction Index
 	pub transaction_index: Option<U256>,
 	/// Sender
-	pub from: H160,
+	pub from: EvmAddress,
 	/// Recipient
-	pub to: Option<H160>,
+	pub to: Option<EvmAddress>,
 	/// Transfered value
 	pub value: U256,
 	/// Gas Price
@@ -55,7 +55,7 @@ pub struct Transaction {
 	/// Data
 	pub input: Bytes,
 	/// Creates contract
-	pub creates: Option<H160>,
+	pub creates: Option<EvmAddress>,
 	/// Raw transaction data
 	pub raw: Bytes,
 	/// Public key of the signer.
@@ -90,7 +90,7 @@ impl From<TransactionV2> for Transaction {
 				block_hash: None,
 				block_number: None,
 				transaction_index: None,
-				from: H160::default(),
+				from: EvmAddress::default(),
 				to: None,
 				value: t.value,
 				gas_price: Some(t.gas_price),
@@ -115,7 +115,7 @@ impl From<TransactionV2> for Transaction {
 				block_hash: None,
 				block_number: None,
 				transaction_index: None,
-				from: H160::default(),
+				from: EvmAddress::default(),
 				to: None,
 				value: t.value,
 				gas_price: Some(t.gas_price),
@@ -140,7 +140,7 @@ impl From<TransactionV2> for Transaction {
 				block_hash: None,
 				block_number: None,
 				transaction_index: None,
-				from: H160::default(),
+				from: EvmAddress::default(),
 				to: None,
 				value: t.value,
 				gas_price: None,

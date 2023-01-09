@@ -17,7 +17,7 @@
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 use ethereum::TransactionV2 as EthereumTransaction;
-use ethereum_types::{H160, H256};
+use ethereum_types::{H160 as EvmAddress, H256};
 use jsonrpsee::core::Error;
 // Substrate
 use sp_core::hashing::keccak_256;
@@ -29,12 +29,12 @@ use crate::internal_err;
 /// A generic Ethereum signer.
 pub trait EthSigner: Send + Sync {
 	/// Available accounts from this signer.
-	fn accounts(&self) -> Vec<H160>;
+	fn accounts(&self) -> Vec<EvmAddress>;
 	/// Sign a transaction message using the given account in message.
 	fn sign(
 		&self,
 		message: TransactionMessage,
-		address: &H160,
+		address: &EvmAddress,
 	) -> Result<EthereumTransaction, Error>;
 }
 
@@ -55,26 +55,26 @@ impl EthDevSigner {
 	}
 }
 
-fn secret_key_address(secret: &libsecp256k1::SecretKey) -> H160 {
+fn secret_key_address(secret: &libsecp256k1::SecretKey) -> EvmAddress {
 	let public = libsecp256k1::PublicKey::from_secret_key(secret);
 	public_key_address(&public)
 }
 
-fn public_key_address(public: &libsecp256k1::PublicKey) -> H160 {
+fn public_key_address(public: &libsecp256k1::PublicKey) -> EvmAddress {
 	let mut res = [0u8; 64];
 	res.copy_from_slice(&public.serialize()[1..65]);
-	H160::from(H256::from(keccak_256(&res)))
+	EvmAddress::from(H256::from(keccak_256(&res)))
 }
 
 impl EthSigner for EthDevSigner {
-	fn accounts(&self) -> Vec<H160> {
+	fn accounts(&self) -> Vec<EvmAddress> {
 		self.keys.iter().map(secret_key_address).collect()
 	}
 
 	fn sign(
 		&self,
 		message: TransactionMessage,
-		address: &H160,
+		address: &EvmAddress,
 	) -> Result<EthereumTransaction, Error> {
 		let mut transaction = None;
 

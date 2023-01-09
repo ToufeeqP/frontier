@@ -29,14 +29,14 @@ benchmarks! {
 		let n in 0 .. 1000;
 
 		use frame_benchmarking::{whitelisted_caller};
-		use sp_core::H160;
+		use sp_core::EvmAddress;
 		use frame_system::RawOrigin;
 
 		// The caller account is whitelisted for DB reads/write by the benchmarking macro.
 		let caller: T::AccountId = whitelisted_caller();
 		let addresses = (0..n as u64)
-							.map(H160::from_low_u64_le)
-							.collect::<Vec<H160>>();
+							.map(EvmAddress::from_low_u64_le)
+							.collect::<Vec<EvmAddress>>();
 		let accounts = addresses
 			.iter()
 			.cloned()

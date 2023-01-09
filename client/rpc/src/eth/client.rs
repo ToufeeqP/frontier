@@ -16,7 +16,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-use ethereum_types::{H160, H256, U256, U64};
+use ethereum_types::{H160 as EvmAddress, H256, U256, U64};
 use jsonrpsee::core::RpcResult as Result;
 // Substrate
 use sc_client_api::backend::{Backend, StateBackend, StorageProvider};
@@ -68,7 +68,7 @@ where
 		}
 	}
 
-	pub fn author(&self) -> Result<H160> {
+	pub fn author(&self) -> Result<EvmAddress> {
 		let block = BlockId::Hash(self.client.info().best_hash);
 		let schema = frontier_backend_client::onchain_storage_schema::<B, C, BE>(
 			self.client.as_ref(),
@@ -86,7 +86,7 @@ where
 			.beneficiary)
 	}
 
-	pub fn accounts(&self) -> Result<Vec<H160>> {
+	pub fn accounts(&self) -> Result<Vec<EvmAddress>> {
 		let mut accounts = Vec::new();
 		for signer in &*self.signers {
 			accounts.append(&mut signer.accounts());

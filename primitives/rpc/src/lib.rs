@@ -22,7 +22,7 @@ use codec::{Decode, Encode};
 use ethereum::Log;
 use ethereum_types::Bloom;
 use scale_info::TypeInfo;
-use sp_core::{H160, H256, U256};
+use sp_core::{H160 as EvmAddress, H256, U256};
 use sp_runtime::{traits::Block as BlockT, Permill, RuntimeDebug};
 use sp_std::vec::Vec;
 
@@ -30,9 +30,9 @@ use sp_std::vec::Vec;
 pub struct TransactionStatus {
 	pub transaction_hash: H256,
 	pub transaction_index: u32,
-	pub from: H160,
-	pub to: Option<H160>,
-	pub contract_address: Option<H160>,
+	pub from: EvmAddress,
+	pub to: Option<EvmAddress>,
+	pub contract_address: Option<EvmAddress>,
 	pub logs: Vec<Log>,
 	pub logs_bloom: Bloom,
 }
@@ -44,20 +44,20 @@ sp_api::decl_runtime_apis! {
 		/// Returns runtime defined pallet_evm::ChainId.
 		fn chain_id() -> u64;
 		/// Returns pallet_evm::Accounts by address.
-		fn account_basic(address: H160) -> fp_evm::Account;
+		fn account_basic(address: EvmAddress) -> fp_evm::Account;
 		/// Returns FixedGasPrice::min_gas_price
 		fn gas_price() -> U256;
 		/// For a given account address, returns pallet_evm::AccountCodes.
-		fn account_code_at(address: H160) -> Vec<u8>;
+		fn account_code_at(address: EvmAddress) -> Vec<u8>;
 		/// Returns the converted FindAuthor::find_author authority id.
-		fn author() -> H160;
+		fn author() -> EvmAddress;
 		/// For a given account address and index, returns pallet_evm::AccountStorages.
-		fn storage_at(address: H160, index: U256) -> H256;
+		fn storage_at(address: EvmAddress, index: U256) -> H256;
 		/// Returns a frame_ethereum::call response. If `estimate` is true,
 		#[changed_in(2)]
 		fn call(
-			from: H160,
-			to: H160,
+			from: EvmAddress,
+			to: EvmAddress,
 			data: Vec<u8>,
 			value: U256,
 			gas_limit: U256,
@@ -67,8 +67,8 @@ sp_api::decl_runtime_apis! {
 		) -> Result<fp_evm::CallInfo, sp_runtime::DispatchError>;
 		#[changed_in(4)]
 		fn call(
-			from: H160,
-			to: H160,
+			from: EvmAddress,
+			to: EvmAddress,
 			data: Vec<u8>,
 			value: U256,
 			gas_limit: U256,
@@ -78,8 +78,8 @@ sp_api::decl_runtime_apis! {
 			estimate: bool,
 		) -> Result<fp_evm::CallInfo, sp_runtime::DispatchError>;
 		fn call(
-			from: H160,
-			to: H160,
+			from: EvmAddress,
+			to: EvmAddress,
 			data: Vec<u8>,
 			value: U256,
 			gas_limit: U256,
@@ -87,12 +87,12 @@ sp_api::decl_runtime_apis! {
 			max_priority_fee_per_gas: Option<U256>,
 			nonce: Option<U256>,
 			estimate: bool,
-			access_list: Option<Vec<(H160, Vec<H256>)>>,
+			access_list: Option<Vec<(EvmAddress, Vec<H256>)>>,
 		) -> Result<fp_evm::CallInfo, sp_runtime::DispatchError>;
 		/// Returns a frame_ethereum::create response.
 		#[changed_in(2)]
 		fn create(
-			from: H160,
+			from: EvmAddress,
 			data: Vec<u8>,
 			value: U256,
 			gas_limit: U256,
@@ -102,7 +102,7 @@ sp_api::decl_runtime_apis! {
 		) -> Result<fp_evm::CreateInfo, sp_runtime::DispatchError>;
 		#[changed_in(4)]
 		fn create(
-			from: H160,
+			from: EvmAddress,
 			data: Vec<u8>,
 			value: U256,
 			gas_limit: U256,
@@ -112,7 +112,7 @@ sp_api::decl_runtime_apis! {
 			estimate: bool,
 		) -> Result<fp_evm::CreateInfo, sp_runtime::DispatchError>;
 		fn create(
-			from: H160,
+			from: EvmAddress,
 			data: Vec<u8>,
 			value: U256,
 			gas_limit: U256,
@@ -120,7 +120,7 @@ sp_api::decl_runtime_apis! {
 			max_priority_fee_per_gas: Option<U256>,
 			nonce: Option<U256>,
 			estimate: bool,
-			access_list: Option<Vec<(H160, Vec<H256>)>>,
+			access_list: Option<Vec<(EvmAddress, Vec<H256>)>>,
 		) -> Result<fp_evm::CreateInfo, sp_runtime::DispatchError>;
 		/// Return the current block. Legacy.
 		#[changed_in(2)]

@@ -23,7 +23,7 @@ use frame_support::{
 	weights::Weight,
 	ConsensusEngineId,
 };
-use sp_core::{H160, H256, U256};
+use sp_core::{H160 as EvmAddress, H256, U256};
 use sp_runtime::{
 	generic,
 	traits::{BlakeTwo256, IdentityLookup},
@@ -68,7 +68,7 @@ impl frame_system::Config for Test {
 	type BlockNumber = u64;
 	type Hash = H256;
 	type Hashing = BlakeTwo256;
-	type AccountId = H160;
+	type AccountId = EvmAddress;
 	type Lookup = IdentityLookup<Self::AccountId>;
 	type Header = generic::Header<u64, BlakeTwo256>;
 	type RuntimeEvent = RuntimeEvent;
@@ -126,12 +126,12 @@ impl FeeCalculator for FixedGasPrice {
 }
 
 pub struct FindAuthorTruncated;
-impl FindAuthor<H160> for FindAuthorTruncated {
-	fn find_author<'a, I>(_digests: I) -> Option<H160>
+impl FindAuthor<EvmAddress> for FindAuthorTruncated {
+	fn find_author<'a, I>(_digests: I) -> Option<EvmAddress>
 	where
 		I: 'a + IntoIterator<Item = (ConsensusEngineId, &'a [u8])>,
 	{
-		Some(H160::from_str("1234500000000000000000000000000000000000").unwrap())
+		Some(EvmAddress::from_str("1234500000000000000000000000000000000000").unwrap())
 	}
 }
 parameter_types! {
@@ -168,7 +168,7 @@ pub(crate) struct MockHandle {
 impl PrecompileHandle for MockHandle {
 	fn call(
 		&mut self,
-		_: H160,
+		_: EvmAddress,
 		_: Option<Transfer>,
 		_: Vec<u8>,
 		_: Option<u64>,
@@ -186,11 +186,11 @@ impl PrecompileHandle for MockHandle {
 		unimplemented!()
 	}
 
-	fn log(&mut self, _: H160, _: Vec<H256>, _: Vec<u8>) -> Result<(), ExitError> {
+	fn log(&mut self, _: EvmAddress, _: Vec<H256>, _: Vec<u8>) -> Result<(), ExitError> {
 		unimplemented!()
 	}
 
-	fn code_address(&self) -> H160 {
+	fn code_address(&self) -> EvmAddress {
 		unimplemented!()
 	}
 

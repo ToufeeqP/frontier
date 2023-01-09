@@ -25,7 +25,8 @@ use sp_runtime::{
 use std::str::FromStr;
 
 use crate::{
-	mock::*, CallOrCreateInfo, RawOrigin, Transaction, TransactionAction, H160, H256, U256,
+	mock::*, CallOrCreateInfo, RawOrigin, Transaction, TransactionAction, EvmAddress, H256,
+	U256,
 };
 use fp_self_contained::CheckedExtrinsic;
 

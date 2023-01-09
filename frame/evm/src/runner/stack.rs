@@ -29,7 +29,7 @@ use evm::{
 };
 use fp_evm::{CallInfo, CreateInfo, ExecutionInfo, Log, Vicinity};
 use frame_support::traits::{Currency, ExistenceRequirement, Get};
-use sp_core::{H160, H256, U256};
+use sp_core::{H160 as EvmAddress, H256, U256};
 use sp_runtime::traits::UniqueSaturatedInto;
 use sp_std::{
 	boxed::Box,
@@ -54,7 +54,7 @@ where
 	#[allow(clippy::let_and_return)]
 	/// Execute an already validated EVM operation.
 	fn execute<'config, 'precompiles, F, R>(
-		source: H160,
+		source: EvmAddress,
 		value: U256,
 		gas_limit: u64,
 		max_fee_per_gas: Option<U256>,
@@ -108,7 +108,7 @@ where
 
 	// Execute an already validated EVM operation.
 	fn execute_inner<'config, 'precompiles, F, R>(
-		source: H160,
+		source: EvmAddress,
 		value: U256,
 		gas_limit: u64,
 		max_fee_per_gas: Option<U256>,
@@ -276,15 +276,15 @@ where
 	type Error = Error<T>;
 
 	fn validate(
-		source: H160,
-		target: Option<H160>,
+		source: EvmAddress,
+		target: Option<EvmAddress>,
 		input: Vec<u8>,
 		value: U256,
 		gas_limit: u64,
 		max_fee_per_gas: Option<U256>,
 		max_priority_fee_per_gas: Option<U256>,
 		nonce: Option<U256>,
-		access_list: Vec<(H160, Vec<H256>)>,
+		access_list: Vec<(EvmAddress, Vec<H256>)>,
 		is_transactional: bool,
 		evm_config: &evm::Config,
 	) -> Result<(), RunnerError<Self::Error>> {
@@ -321,15 +321,15 @@ where
 	}
 
 	fn call(
-		source: H160,
-		target: H160,
+		source: EvmAddress,
+		target: EvmAddress,
 		input: Vec<u8>,
 		value: U256,
 		gas_limit: u64,
 		max_fee_per_gas: Option<U256>,
 		max_priority_fee_per_gas: Option<U256>,
 		nonce: Option<U256>,
-		access_list: Vec<(H160, Vec<H256>)>,
+		access_list: Vec<(EvmAddress, Vec<H256>)>,
 		is_transactional: bool,
 		validate: bool,
 		config: &evm::Config,
@@ -364,14 +364,14 @@ where
 	}
 
 	fn create(
-		source: H160,
+		source: EvmAddress,
 		init: Vec<u8>,
 		value: U256,
 		gas_limit: u64,
 		max_fee_per_gas: Option<U256>,
 		max_priority_fee_per_gas: Option<U256>,
 		nonce: Option<U256>,
-		access_list: Vec<(H160, Vec<H256>)>,
+		access_list: Vec<(EvmAddress, Vec<H256>)>,
 		is_transactional: bool,
 		validate: bool,
 		config: &evm::Config,
@@ -411,7 +411,7 @@ where
 	}
 
 	fn create2(
-		source: H160,
+		source: EvmAddress,
 		init: Vec<u8>,
 		salt: H256,
 		value: U256,
@@ -419,7 +419,7 @@ where
 		max_fee_per_gas: Option<U256>,
 		max_priority_fee_per_gas: Option<U256>,
 		nonce: Option<U256>,
-		access_list: Vec<(H160, Vec<H256>)>,
+		access_list: Vec<(EvmAddress, Vec<H256>)>,
 		is_transactional: bool,
 		validate: bool,
 		config: &evm::Config,
@@ -466,7 +466,7 @@ where
 
 struct SubstrateStackSubstate<'config> {
 	metadata: StackSubstateMetadata<'config>,
-	deletes: BTreeSet<H160>,
+	deletes: BTreeSet<EvmAddress>,
 	logs: Vec<Log>,
 	parent: Option<Box<SubstrateStackSubstate<'config>>>,
 }
@@ -524,7 +524,7 @@ impl<'config> SubstrateStackSubstate<'config> {
 		Ok(())
 	}
 
-	pub fn deleted(&self, address: H160) -> bool {
+	pub fn deleted(&self, address: EvmAddress) -> bool {
 		if self.deletes.contains(&address) {
 			return true;
 		}
@@ -536,11 +536,11 @@ impl<'config> SubstrateStackSubstate<'config> {
 		false
 	}
 
-	pub fn set_deleted(&mut self, address: H160) {
+	pub fn set_deleted(&mut self, address: EvmAddress) {
 		self.deletes.insert(address);
 	}
 
-	pub fn log(&mut self, address: H160, topics: Vec<H256>, data: Vec<u8>) {
+	pub fn log(&mut self, address: EvmAddress, topics: Vec<H256>, data: Vec<u8>) {
 		self.logs.push(Log {
 			address,
 			topics,
@@ -565,7 +565,7 @@ impl<'config> SubstrateStackSubstate<'config> {
 pub struct SubstrateStackState<'vicinity, 'config, T> {
 	vicinity: &'vicinity Vicinity,
 	substate: SubstrateStackSubstate<'config>,
-	original_storage: BTreeMap<(H160, H256), H256>,
+	original_storage: BTreeMap<(EvmAddress, H256), H256>,
 	_marker: PhantomData<T>,
 }
 
@@ -590,7 +590,7 @@ impl<'vicinity, 'config, T: Config> BackendT for SubstrateStackState<'vicinity, 
 	fn gas_price(&self) -> U256 {
 		self.vicinity.gas_price
 	}
-	fn origin(&self) -> H160 {
+	fn origin(&self) -> EvmAddress {
 		self.vicinity.origin
 	}
 
@@ -607,7 +607,7 @@ impl<'vicinity, 'config, T: Config> BackendT for SubstrateStackState<'vicinity, 
 		U256::from(number)
 	}
 
-	fn block_coinbase(&self) -> H160 {
+	fn block_coinbase(&self) -> EvmAddress {
 		Pallet::<T>::find_author()
 	}
 
@@ -628,11 +628,11 @@ impl<'vicinity, 'config, T: Config> BackendT for SubstrateStackState<'vicinity, 
 		U256::from(T::ChainId::get())
 	}
 
-	fn exists(&self, _address: H160) -> bool {
+	fn exists(&self, _address: EvmAddress) -> bool {
 		true
 	}
 
-	fn basic(&self, address: H160) -> evm::backend::Basic {
+	fn basic(&self, address: EvmAddress) -> evm::backend::Basic {
 		let (account, _) = Pallet::<T>::account_basic(&address);
 
 		evm::backend::Basic {
@@ -641,15 +641,15 @@ impl<'vicinity, 'config, T: Config> BackendT for SubstrateStackState<'vicinity, 
 		}
 	}
 
-	fn code(&self, address: H160) -> Vec<u8> {
+	fn code(&self, address: EvmAddress) -> Vec<u8> {
 		<AccountCodes<T>>::get(&address)
 	}
 
-	fn storage(&self, address: H160, index: H256) -> H256 {
+	fn storage(&self, address: EvmAddress, index: H256) -> H256 {
 		<AccountStorages<T>>::get(address, index)
 	}
 
-	fn original_storage(&self, address: H160, index: H256) -> Option<H256> {
+	fn original_storage(&self, address: EvmAddress, index: H256) -> Option<H256> {
 		// Not being cached means that it was never changed, which means we
 		// can fetch it from storage.
 		Some(
@@ -695,20 +695,20 @@ where
 		self.substate.exit_discard()
 	}
 
-	fn is_empty(&self, address: H160) -> bool {
+	fn is_empty(&self, address: EvmAddress) -> bool {
 		Pallet::<T>::is_account_empty(&address)
 	}
 
-	fn deleted(&self, address: H160) -> bool {
+	fn deleted(&self, address: EvmAddress) -> bool {
 		self.substate.deleted(address)
 	}
 
-	fn inc_nonce(&mut self, address: H160) {
+	fn inc_nonce(&mut self, address: EvmAddress) {
 		let account_id = T::AddressMapping::into_account_id(address);
 		frame_system::Pallet::<T>::inc_account_nonce(&account_id);
 	}
 
-	fn set_storage(&mut self, address: H160, index: H256, value: H256) {
+	fn set_storage(&mut self, address: EvmAddress, index: H256, value: H256) {
 		// We cache the current value if this is the first time we modify it
 		// in the transaction.
 		use sp_std::collections::btree_map::Entry::Vacant;
@@ -741,20 +741,20 @@ where
 		}
 	}
 
-	fn reset_storage(&mut self, address: H160) {
+	fn reset_storage(&mut self, address: EvmAddress) {
 		#[allow(deprecated)]
 		let _ = <AccountStorages<T>>::remove_prefix(address, None);
 	}
 
-	fn log(&mut self, address: H160, topics: Vec<H256>, data: Vec<u8>) {
+	fn log(&mut self, address: EvmAddress, topics: Vec<H256>, data: Vec<u8>) {
 		self.substate.log(address, topics, data)
 	}
 
-	fn set_deleted(&mut self, address: H160) {
+	fn set_deleted(&mut self, address: EvmAddress) {
 		self.substate.set_deleted(address)
 	}
 
-	fn set_code(&mut self, address: H160, code: Vec<u8>) {
+	fn set_code(&mut self, address: EvmAddress, code: Vec<u8>) {
 		log::debug!(
 			target: "evm",
 			"Inserting code ({} bytes) at {:?}",
@@ -780,7 +780,7 @@ where
 		.map_err(|_| ExitError::OutOfFund)
 	}
 
-	fn reset_balance(&mut self, _address: H160) {
+	fn reset_balance(&mut self, _address: EvmAddress) {
 		// Do nothing on reset balance in Substrate.
 		//
 		// This function exists in EVM because a design issue
@@ -788,7 +788,7 @@ where
 		// issuance to be reduced. We do not need to replicate this.
 	}
 
-	fn touch(&mut self, _address: H160) {
+	fn touch(&mut self, _address: EvmAddress) {
 		// Do nothing on touch in Substrate.
 		//
 		// EVM pallet considers all accounts to exist, and distinguish
@@ -796,12 +796,12 @@ where
 		// subtle issues in EIP-161.
 	}
 
-	fn is_cold(&self, address: H160) -> bool {
+	fn is_cold(&self, address: EvmAddress) -> bool {
 		self.substate
 			.recursive_is_cold(&|a| a.accessed_addresses.contains(&address))
 	}
 
-	fn is_storage_cold(&self, address: H160, key: H256) -> bool {
+	fn is_storage_cold(&self, address: EvmAddress, key: H256) -> bool {
 		self.substate
 			.recursive_is_cold(&|a: &Accessed| a.accessed_storage.contains(&(address, key)))
 	}
@@ -821,7 +821,7 @@ mod tests {
 
 		// Should fail with the appropriate error if there is reentrancy
 		let res = Runner::<Test>::execute(
-			H160::default(),
+			EvmAddress::default(),
 			U256::default(),
 			100_000,
 			None,
@@ -831,7 +831,7 @@ mod tests {
 			false,
 			|_| {
 				let res = Runner::<Test>::execute(
-					H160::default(),
+					EvmAddress::default(),
 					U256::default(),
 					100_000,
 					None,
@@ -861,7 +861,7 @@ mod tests {
 
 		// Should succeed if there is no reentrancy
 		let res = Runner::<Test>::execute(
-			H160::default(),
+			EvmAddress::default(),
 			U256::default(),
 			100_000,
 			None,

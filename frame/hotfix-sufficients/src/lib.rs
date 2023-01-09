@@ -29,7 +29,7 @@ pub use weights::WeightInfo;
 
 use frame_support::dispatch::PostDispatchInfo;
 pub use pallet_evm::AddressMapping;
-use sp_core::H160;
+use sp_core::H160 as EvmAddress;
 use sp_runtime::traits::Zero;
 use sp_std::vec::Vec;
 
@@ -71,7 +71,7 @@ pub mod pallet {
 		)]
 		pub fn hotfix_inc_account_sufficients(
 			origin: OriginFor<T>,
-			addresses: Vec<H160>,
+			addresses: Vec<EvmAddress>,
 		) -> DispatchResultWithPostInfo {
 			const MAX_ADDRESS_COUNT: usize = 1000;
 

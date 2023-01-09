@@ -33,7 +33,7 @@ benchmarks! {
 
 		use frame_benchmarking::vec;
 		use rlp::RlpStream;
-		use sp_core::{H160, U256};
+		use sp_core::{H160 as EvmAddress, U256};
 
 		// contract bytecode below is for:
 		//
@@ -67,7 +67,7 @@ benchmarks! {
 			"2eeada8e094193a364736f6c63430008030033"))
 			.expect("Bad hex string");
 
-		let caller = "1000000000000000000000000000000000000001".parse::<H160>().unwrap();
+		let caller = "1000000000000000000000000000000000000001".parse::<EvmAddress>().unwrap();
 
 		let mut nonce: u64 = 1;
 		let nonce_as_u256: U256 = nonce.into();
@@ -95,7 +95,7 @@ benchmarks! {
 		let mut rlp = RlpStream::new_list(2);
 		rlp.append(&caller);
 		rlp.append(&0u8);
-		let contract_address = H160::from_slice(&sp_io::hashing::keccak_256(&rlp.out())[12..]);
+		let contract_address = EvmAddress::from_slice(&sp_io::hashing::keccak_256(&rlp.out())[12..]);
 
 		// derive encoded contract call -- in this case, just the function selector
 		let mut encoded_call = vec![0u8; 4];

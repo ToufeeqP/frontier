@@ -19,7 +19,7 @@
 use std::{marker::PhantomData, sync::Arc};
 
 use codec::Decode;
-use ethereum_types::{H160, H256, U256};
+use ethereum_types::{H160 as EvmAddress, H256, U256};
 // Substrate
 use sc_client_api::backend::{Backend, StateBackend, StorageProvider};
 use sp_api::{BlockId, HeaderT};
@@ -78,14 +78,14 @@ where
 	BE::State: StateBackend<BlakeTwo256>,
 {
 	/// For a given account address, returns pallet_evm::AccountCodes.
-	fn account_code_at(&self, block: &BlockId<B>, address: H160) -> Option<Vec<u8>> {
+	fn account_code_at(&self, block: &BlockId<B>, address: EvmAddress) -> Option<Vec<u8>> {
 		let mut key: Vec<u8> = storage_prefix_build(PALLET_EVM, EVM_ACCOUNT_CODES);
 		key.extend(blake2_128_extend(address.as_bytes()));
 		self.query_storage::<Vec<u8>>(block, &StorageKey(key))
 	}
 
 	/// For a given account address and index, returns pallet_evm::AccountStorages.
-	fn storage_at(&self, block: &BlockId<B>, address: H160, index: U256) -> Option<H256> {
+	fn storage_at(&self, block: &BlockId<B>, address: EvmAddress, index: U256) -> Option<H256> {
 		let tmp: &mut [u8; 32] = &mut [0; 32];
 		index.to_big_endian(tmp);
 

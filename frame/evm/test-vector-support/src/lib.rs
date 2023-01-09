@@ -19,7 +19,7 @@ use std::fs;
 
 use evm::{Context, ExitError, ExitReason, ExitSucceed, Transfer};
 use fp_evm::{Precompile, PrecompileHandle};
-use sp_core::{H160, H256};
+use sp_core::{H160 as EvmAddress, H256};
 
 #[derive(Debug, serde::Deserialize)]
 #[serde(rename_all = "PascalCase")]
@@ -55,7 +55,7 @@ impl PrecompileHandle for MockHandle {
 	/// Precompile specifies in which context the subcall is executed.
 	fn call(
 		&mut self,
-		_: H160,
+		_: EvmAddress,
 		_: Option<Transfer>,
 		_: Vec<u8>,
 		_: Option<u64>,
@@ -70,7 +70,7 @@ impl PrecompileHandle for MockHandle {
 		Ok(())
 	}
 
-	fn log(&mut self, _: H160, _: Vec<H256>, _: Vec<u8>) -> Result<(), ExitError> {
+	fn log(&mut self, _: EvmAddress, _: Vec<H256>, _: Vec<u8>) -> Result<(), ExitError> {
 		unimplemented!()
 	}
 
@@ -78,7 +78,7 @@ impl PrecompileHandle for MockHandle {
 		unimplemented!()
 	}
 
-	fn code_address(&self) -> H160 {
+	fn code_address(&self) -> EvmAddress {
 		unimplemented!()
 	}
 

@@ -17,15 +17,15 @@
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::types::Bytes;
-use ethereum_types::{H160, H256, U256};
+use ethereum_types::{H160 as EvmAddress, H256, U256};
 use serde::Serialize;
 
 /// Log
 #[derive(Clone, Debug, Eq, PartialEq, Hash, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct Log {
-	/// H160
-	pub address: H160,
+	/// EvmAddress
+	pub address: EvmAddress,
 	/// Topics
 	pub topics: Vec<H256>,
 	/// Data

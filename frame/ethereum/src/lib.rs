@@ -29,7 +29,7 @@ mod mock;
 #[cfg(all(feature = "std", test))]
 mod tests;
 
-use ethereum_types::{Bloom, BloomInput, H160, H256, H64, U256};
+use ethereum_types::{Bloom, BloomInput, H160 as EvmAddress, H256, H64, U256};
 use evm::ExitReason;
 use fp_consensus::{PostLog, PreLog, FRONTIER_ENGINE_ID};
 use fp_ethereum::{
@@ -66,10 +66,10 @@ pub use fp_rpc::TransactionStatus;
 
 #[derive(Clone, Eq, PartialEq, RuntimeDebug, Encode, Decode, MaxEncodedLen, TypeInfo)]
 pub enum RawOrigin {
-	EthereumTransaction(H160),
+	EthereumTransaction(EvmAddress),
 }
 
-pub fn ensure_ethereum_transaction<OuterOrigin>(o: OuterOrigin) -> Result<H160, &'static str>
+pub fn ensure_ethereum_transaction<OuterOrigin>(o: OuterOrigin) -> Result<EvmAddress, &'static str>
 where
 	OuterOrigin: Into<Result<RawOrigin, OuterOrigin>>,
 {
@@ -83,7 +83,7 @@ pub struct EnsureEthereumTransaction;
 impl<O: Into<Result<RawOrigin, O>> + From<RawOrigin>> EnsureOrigin<O>
 	for EnsureEthereumTransaction
 {
-	type Success = H160;
+	type Success = EvmAddress;
 	fn try_origin(o: O) -> Result<Self::Success, O> {
 		o.into().map(|o| match o {
 			RawOrigin::EthereumTransaction(id) => id,
@@ -106,7 +106,7 @@ where
 		matches!(self, Call::transact { .. })
 	}
 
-	pub fn check_self_contained(&self) -> Option<Result<H160, TransactionValidityError>> {
+	pub fn check_self_contained(&self) -> Option<Result<EvmAddress, TransactionValidityError>> {
 		if let Call::transact { transaction } = self {
 			let check = || {
 				let origin = Pallet::<T>::recover_signer(transaction).ok_or(
@@ -124,7 +124,7 @@ where
 
 	pub fn pre_dispatch_self_contained(
 		&self,
-		origin: &H160,
+		origin: &EvmAddress,
 		dispatch_info: &DispatchInfoOf<T::RuntimeCall>,
 		len: usize,
 	) -> Option<Result<(), TransactionValidityError>> {
@@ -144,7 +144,7 @@ where
 
 	pub fn validate_self_contained(
 		&self,
-		origin: &H160,
+		origin: &EvmAddress,
 		dispatch_info: &DispatchInfoOf<T::RuntimeCall>,
 		len: usize,
 	) -> Option<TransactionValidity> {
@@ -283,8 +283,8 @@ pub mod pallet {
 	pub enum Event {
 		/// An ethereum transaction was successfully executed.
 		Executed {
-			from: H160,
-			to: H160,
+			from: EvmAddress,
+			to: EvmAddress,
 			transaction_hash: H256,
 			exit_reason: ExitReason,
 		},
@@ -341,7 +341,7 @@ pub mod pallet {
 }
 
 impl<T: Config> Pallet<T> {
-	fn recover_signer(transaction: &Transaction) -> Option<H160> {
+	fn recover_signer(transaction: &Transaction) -> Option<EvmAddress> {
 		let mut sig = [0u8; 65];
 		let mut msg = [0u8; 32];
 		match transaction {
@@ -371,7 +371,9 @@ impl<T: Config> Pallet<T> {
 			}
 		}
 		let pubkey = sp_io::crypto::secp256k1_ecdsa_recover(&sig, &msg).ok()?;
-		Some(H160::from(H256::from(sp_io::hashing::keccak_256(&pubkey))))
+		Some(EvmAddress::from(H256::from(sp_io::hashing::keccak_256(
+			&pubkey,
+		))))
 	}
 
 	fn store_block(post_log: bool, block_number: U256) {
@@ -447,7 +449,7 @@ impl<T: Config> Pallet<T> {
 	// The controls common with the State Transition Function (STF) are in
 	// the function `validate_transaction_common`.
 	fn validate_transaction_in_pool(
-		origin: H160,
+		origin: EvmAddress,
 		transaction: &Transaction,
 	) -> TransactionValidity {
 		let transaction_data: TransactionData = transaction.into();
@@ -511,7 +513,7 @@ impl<T: Config> Pallet<T> {
 	}
 
 	fn apply_validated_transaction(
-		source: H160,
+		source: EvmAddress,
 		transaction: Transaction,
 	) -> DispatchResultWithPostInfo {
 		let (to, _, info) = Self::execute(source, &transaction, None)?;
@@ -622,11 +624,11 @@ impl<T: Config> Pallet<T> {
 
 	/// Execute an Ethereum transaction.
 	pub fn execute(
-		from: H160,
+		from: EvmAddress,
 		transaction: &Transaction,
 		config: Option<evm::Config>,
 	) -> Result<
-		(Option<H160>, Option<H160>, CallOrCreateInfo),
+		(Option<EvmAddress>, Option<EvmAddress>, CallOrCreateInfo),
 		DispatchErrorWithPostInfo<PostDispatchInfo>,
 	> {
 		let (
@@ -653,7 +655,7 @@ impl<T: Config> Pallet<T> {
 					Vec::new(),
 				),
 				Transaction::EIP2930(t) => {
-					let access_list: Vec<(H160, Vec<H256>)> = t
+					let access_list: Vec<(EvmAddress, Vec<H256>)> = t
 						.access_list
 						.iter()
 						.map(|item| (item.address, item.storage_keys.clone()))
@@ -670,7 +672,7 @@ impl<T: Config> Pallet<T> {
 					)
 				}
 				Transaction::EIP1559(t) => {
-					let access_list: Vec<(H160, Vec<H256>)> = t
+					let access_list: Vec<(EvmAddress, Vec<H256>)> = t
 						.access_list
 						.iter()
 						.map(|item| (item.address, item.storage_keys.clone()))
@@ -757,7 +759,7 @@ impl<T: Config> Pallet<T> {
 	/// This function must be called during the pre-dispatch phase
 	/// (just before applying the extrinsic).
 	pub fn validate_transaction_in_block(
-		origin: H160,
+		origin: EvmAddress,
 		transaction: &Transaction,
 	) -> Result<(), TransactionValidityError> {
 		let transaction_data: TransactionData = transaction.into();
@@ -851,7 +853,7 @@ impl<T: Config> Pallet<T> {
 
 pub struct ValidatedTransaction<T>(PhantomData<T>);
 impl<T: Config> ValidatedTransactionT for ValidatedTransaction<T> {
-	fn apply(source: H160, transaction: Transaction) -> DispatchResultWithPostInfo {
+	fn apply(source: EvmAddress, transaction: Transaction) -> DispatchResultWithPostInfo {
 		Pallet::<T>::apply_validated_transaction(source, transaction)
 	}
 }
@@ -859,7 +861,7 @@ impl<T: Config> ValidatedTransactionT for ValidatedTransaction<T> {
 #[derive(Eq, PartialEq, Clone, RuntimeDebug)]
 pub enum ReturnValue {
 	Bytes(Vec<u8>),
-	Hash(H160),
+	Hash(EvmAddress),
 }
 
 pub struct IntermediateStateRoot<T>(PhantomData<T>);

@@ -22,7 +22,7 @@ use frame_support::{
 	traits::{ConstU32, FindAuthor},
 	weights::Weight,
 };
-use sp_core::{H160, H256, U256};
+use sp_core::{H160 as EvmAddress, H256, U256};
 use sp_runtime::{
 	generic,
 	traits::{BlakeTwo256, IdentityLookup},
@@ -63,7 +63,7 @@ impl frame_system::Config for Test {
 	type BlockNumber = u64;
 	type Hash = H256;
 	type Hashing = BlakeTwo256;
-	type AccountId = H160;
+	type AccountId = EvmAddress;
 	type Lookup = IdentityLookup<Self::AccountId>;
 	type Header = generic::Header<u64, BlakeTwo256>;
 	type RuntimeEvent = RuntimeEvent;
@@ -114,12 +114,12 @@ impl FeeCalculator for FixedGasPrice {
 }
 
 pub struct FindAuthorTruncated;
-impl FindAuthor<H160> for FindAuthorTruncated {
-	fn find_author<'a, I>(_digests: I) -> Option<H160>
+impl FindAuthor<EvmAddress> for FindAuthorTruncated {
+	fn find_author<'a, I>(_digests: I) -> Option<EvmAddress>
 	where
 		I: 'a + IntoIterator<Item = (ConsensusEngineId, &'a [u8])>,
 	{
-		Some(H160::from_str("1234500000000000000000000000000000000000").unwrap())
+		Some(EvmAddress::from_str("1234500000000000000000000000000000000000").unwrap())
 	}
 }
 parameter_types! {

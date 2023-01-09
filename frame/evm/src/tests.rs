@@ -36,7 +36,7 @@ pub fn new_test_ext() -> sp_io::TestExternalities {
 
 	let mut accounts = BTreeMap::new();
 	accounts.insert(
-		H160::from_str("1000000000000000000000000000000000000001").unwrap(),
+		EvmAddress::from_str("1000000000000000000000000000000000000001").unwrap(),
 		GenesisAccount {
 			nonce: U256::from(1),
 			balance: U256::from(1000000),
@@ -47,7 +47,7 @@ pub fn new_test_ext() -> sp_io::TestExternalities {
 		},
 	);
 	accounts.insert(
-		H160::from_str("1000000000000000000000000000000000000002").unwrap(),
+		EvmAddress::from_str("1000000000000000000000000000000000000002").unwrap(),
 		GenesisAccount {
 			nonce: U256::from(1),
 			balance: U256::from(1000000),
@@ -58,7 +58,7 @@ pub fn new_test_ext() -> sp_io::TestExternalities {
 		},
 	);
 	accounts.insert(
-		H160::default(), // root
+		EvmAddress::default(), // root
 		GenesisAccount {
 			nonce: U256::from(1),
 			balance: U256::max_value(),
@@ -70,7 +70,7 @@ pub fn new_test_ext() -> sp_io::TestExternalities {
 	pallet_balances::GenesisConfig::<Test> {
 		// Create the block author account with some balance.
 		balances: vec![(
-			H160::from_str("0x1234500000000000000000000000000000000000").unwrap(),
+			EvmAddress::from_str("0x1234500000000000000000000000000000000000").unwrap(),
 			12345,
 		)],
 	}
@@ -85,8 +85,8 @@ fn fail_call_return_ok() {
 	new_test_ext().execute_with(|| {
 		assert_ok!(EVM::call(
 			RuntimeOrigin::root(),
-			H160::default(),
-			H160::from_str("1000000000000000000000000000000000000001").unwrap(),
+			EvmAddress::default(),
+			EvmAddress::from_str("1000000000000000000000000000000000000001").unwrap(),
 			Vec::new(),
 			U256::default(),
 			1000000,
@@ -98,8 +98,8 @@ fn fail_call_return_ok() {
 
 		assert_ok!(EVM::call(
 			RuntimeOrigin::root(),
-			H160::default(),
-			H160::from_str("1000000000000000000000000000000000000002").unwrap(),
+			EvmAddress::default(),
+			EvmAddress::from_str("1000000000000000000000000000000000000002").unwrap(),
 			Vec::new(),
 			U256::default(),
 			1000000,
@@ -115,7 +115,7 @@ fn fail_call_return_ok() {
 fn fee_deduction() {
 	new_test_ext().execute_with(|| {
 		// Create an EVM address and the corresponding Substrate address that will be charged fees and refunded
-		let evm_addr = H160::from_str("1000000000000000000000000000000000000003").unwrap();
+		let evm_addr = EvmAddress::from_str("1000000000000000000000000000000000000003").unwrap();
 		let substrate_addr = <Test as Config>::AddressMapping::into_account_id(evm_addr);
 
 		// Seed account
@@ -137,7 +137,7 @@ fn ed_0_refund_patch_works() {
 	new_test_ext().execute_with(|| {
 		// Verifies that the OnChargeEVMTransaction patch is applied and fixes a known bug in Substrate for evm transactions.
 		// https://github.com/paritytech/substrate/issues/10117
-		let evm_addr = H160::from_str("1000000000000000000000000000000000000003").unwrap();
+		let evm_addr = EvmAddress::from_str("1000000000000000000000000000000000000003").unwrap();
 		let substrate_addr = <Test as Config>::AddressMapping::into_account_id(evm_addr);
 
 		let _ = <Test as Config>::Currency::deposit_creating(&substrate_addr, 21_777_000_000_000);
@@ -146,7 +146,7 @@ fn ed_0_refund_patch_works() {
 		let _ = EVM::call(
 			RuntimeOrigin::root(),
 			evm_addr,
-			H160::from_str("1000000000000000000000000000000000000001").unwrap(),
+			EvmAddress::from_str("1000000000000000000000000000000000000001").unwrap(),
 			Vec::new(),
 			U256::from(1_000_000_000),
 			21776,
@@ -165,7 +165,7 @@ fn ed_0_refund_patch_is_required() {
 	new_test_ext().execute_with(|| {
 		// This test proves that the patch is required, verifying that the current Substrate behaviour is incorrect
 		// for ED 0 configured chains.
-		let evm_addr = H160::from_str("1000000000000000000000000000000000000003").unwrap();
+		let evm_addr = EvmAddress::from_str("1000000000000000000000000000000000000003").unwrap();
 		let substrate_addr = <Test as Config>::AddressMapping::into_account_id(evm_addr);
 
 		let _ = <Test as Config>::Currency::deposit_creating(&substrate_addr, 100);
@@ -200,7 +200,7 @@ fn find_author() {
 		let author = EVM::find_author();
 		assert_eq!(
 			author,
-			H160::from_str("1234500000000000000000000000000000000000").unwrap()
+			EvmAddress::from_str("1234500000000000000000000000000000000000").unwrap()
 		);
 	});
 }
@@ -208,7 +208,7 @@ fn find_author() {
 #[test]
 fn reducible_balance() {
 	new_test_ext().execute_with(|| {
-		let evm_addr = H160::from_str("1000000000000000000000000000000000000001").unwrap();
+		let evm_addr = EvmAddress::from_str("1000000000000000000000000000000000000001").unwrap();
 		let account_id = <Test as Config>::AddressMapping::into_account_id(evm_addr);
 		let existential = ExistentialDeposit::get();
 
@@ -233,8 +233,8 @@ fn author_should_get_tip() {
 		let before_tip = EVM::account_basic(&author).0.balance;
 		let result = EVM::call(
 			RuntimeOrigin::root(),
-			H160::default(),
-			H160::from_str("1000000000000000000000000000000000000001").unwrap(),
+			EvmAddress::default(),
+			EvmAddress::from_str("1000000000000000000000000000000000000001").unwrap(),
 			Vec::new(),
 			U256::from(1),
 			1000000,
@@ -255,8 +255,8 @@ fn issuance_after_tip() {
 		let before_tip = <Test as Config>::Currency::total_issuance();
 		let result = EVM::call(
 			RuntimeOrigin::root(),
-			H160::default(),
-			H160::from_str("1000000000000000000000000000000000000001").unwrap(),
+			EvmAddress::default(),
+			EvmAddress::from_str("1000000000000000000000000000000000000001").unwrap(),
 			Vec::new(),
 			U256::from(1),
 			1000000,
@@ -282,8 +282,8 @@ fn author_same_balance_without_tip() {
 		let before_tip = EVM::account_basic(&author).0.balance;
 		let _ = EVM::call(
 			RuntimeOrigin::root(),
-			H160::default(),
-			H160::from_str("1000000000000000000000000000000000000001").unwrap(),
+			EvmAddress::default(),
+			EvmAddress::from_str("1000000000000000000000000000000000000001").unwrap(),
 			Vec::new(),
 			U256::default(),
 			1000000,
@@ -300,15 +300,15 @@ fn author_same_balance_without_tip() {
 #[test]
 fn refunds_should_work() {
 	new_test_ext().execute_with(|| {
-		let before_call = EVM::account_basic(&H160::default()).0.balance;
+		let before_call = EVM::account_basic(&EvmAddress::default()).0.balance;
 		// Gas price is not part of the actual fee calculations anymore, only the base fee.
 		//
 		// Because we first deduct max_fee_per_gas * gas_limit (2_000_000_000 * 1000000) we need
 		// to ensure that the difference (max fee VS base fee) is refunded.
 		let _ = EVM::call(
 			RuntimeOrigin::root(),
-			H160::default(),
-			H160::from_str("1000000000000000000000000000000000000001").unwrap(),
+			EvmAddress::default(),
+			EvmAddress::from_str("1000000000000000000000000000000000000001").unwrap(),
 			Vec::new(),
 			U256::from(1),
 			1000000,
@@ -319,7 +319,7 @@ fn refunds_should_work() {
 		);
 		let (base_fee, _) = <Test as Config>::FeeCalculator::min_gas_price();
 		let total_cost = (U256::from(21_000) * base_fee) + U256::from(1);
-		let after_call = EVM::account_basic(&H160::default()).0.balance;
+		let after_call = EVM::account_basic(&EvmAddress::default()).0.balance;
 		assert_eq!(after_call, before_call - total_cost);
 	});
 }
@@ -329,7 +329,7 @@ fn refunds_and_priority_should_work() {
 	new_test_ext().execute_with(|| {
 		let author = EVM::find_author();
 		let before_tip = EVM::account_basic(&author).0.balance;
-		let before_call = EVM::account_basic(&H160::default()).0.balance;
+		let before_call = EVM::account_basic(&EvmAddress::default()).0.balance;
 		// We deliberately set a base fee + max tip > max fee.
 		// The effective priority tip will be 1GWEI instead 1.5GWEI:
 		// 		(max_fee_per_gas - base_fee).min(max_priority_fee)
@@ -339,8 +339,8 @@ fn refunds_and_priority_should_work() {
 		let used_gas = U256::from(21_000);
 		let _ = EVM::call(
 			RuntimeOrigin::root(),
-			H160::default(),
-			H160::from_str("1000000000000000000000000000000000000001").unwrap(),
+			EvmAddress::default(),
+			EvmAddress::from_str("1000000000000000000000000000000000000001").unwrap(),
 			Vec::new(),
 			U256::from(1),
 			1000000,
@@ -352,7 +352,7 @@ fn refunds_and_priority_should_work() {
 		let (base_fee, _) = <Test as Config>::FeeCalculator::min_gas_price();
 		let actual_tip = (max_fee_per_gas - base_fee).min(tip) * used_gas;
 		let total_cost = (used_gas * base_fee) + U256::from(actual_tip) + U256::from(1);
-		let after_call = EVM::account_basic(&H160::default()).0.balance;
+		let after_call = EVM::account_basic(&EvmAddress::default()).0.balance;
 		// The tip is deducted but never refunded to the caller.
 		assert_eq!(after_call, before_call - total_cost);
 
@@ -368,8 +368,8 @@ fn call_should_fail_with_priority_greater_than_max_fee() {
 		let tip: u128 = 1_100_000_000;
 		let result = EVM::call(
 			RuntimeOrigin::root(),
-			H160::default(),
-			H160::from_str("1000000000000000000000000000000000000001").unwrap(),
+			EvmAddress::default(),
+			EvmAddress::from_str("1000000000000000000000000000000000000001").unwrap(),
 			Vec::new(),
 			U256::from(1),
 			1000000,
@@ -395,8 +395,8 @@ fn call_should_succeed_with_priority_equal_to_max_fee() {
 		// is used for both `max_fee_per_gas` and `max_priority_fee_per_gas`.
 		let result = EVM::call(
 			RuntimeOrigin::root(),
-			H160::default(),
-			H160::from_str("1000000000000000000000000000000000000001").unwrap(),
+			EvmAddress::default(),
+			EvmAddress::from_str("1000000000000000000000000000000000000001").unwrap(),
 			Vec::new(),
 			U256::from(1),
 			1000000,
@@ -412,8 +412,8 @@ fn call_should_succeed_with_priority_equal_to_max_fee() {
 #[test]
 fn handle_sufficient_reference() {
 	new_test_ext().execute_with(|| {
-		let addr = H160::from_str("1230000000000000000000000000000000000001").unwrap();
-		let addr_2 = H160::from_str("1234000000000000000000000000000000000001").unwrap();
+		let addr = EvmAddress::from_str("1230000000000000000000000000000000000001").unwrap();
+		let addr_2 = EvmAddress::from_str("1234000000000000000000000000000000000001").unwrap();
 		let substrate_addr = <Test as Config>::AddressMapping::into_account_id(addr);
 		let substrate_addr_2 = <Test as Config>::AddressMapping::into_account_id(addr_2);
 
@@ -442,14 +442,14 @@ fn runner_non_transactional_calls_with_non_balance_accounts_is_ok_without_gas_pr
 	//	- The `max_fee_per_gas` is None.
 	new_test_ext().execute_with(|| {
 		let non_balance_account =
-			H160::from_str("7700000000000000000000000000000000000001").unwrap();
+			EvmAddress::from_str("7700000000000000000000000000000000000001").unwrap();
 		assert_eq!(
 			EVM::account_basic(&non_balance_account).0.balance,
 			U256::zero()
 		);
 		let _ = <Test as Config>::Runner::call(
 			non_balance_account,
-			H160::from_str("1000000000000000000000000000000000000001").unwrap(),
+			EvmAddress::from_str("1000000000000000000000000000000000000001").unwrap(),
 			Vec::new(),
 			U256::from(1u32),
 			1000000,
@@ -476,14 +476,14 @@ fn runner_non_transactional_calls_with_non_balance_accounts_is_err_with_gas_pric
 	// to pay for the call.
 	new_test_ext().execute_with(|| {
 		let non_balance_account =
-			H160::from_str("7700000000000000000000000000000000000001").unwrap();
+			EvmAddress::from_str("7700000000000000000000000000000000000001").unwrap();
 		assert_eq!(
 			EVM::account_basic(&non_balance_account).0.balance,
 			U256::zero()
 		);
 		let res = <Test as Config>::Runner::call(
 			non_balance_account,
-			H160::from_str("1000000000000000000000000000000000000001").unwrap(),
+			EvmAddress::from_str("1000000000000000000000000000000000000001").unwrap(),
 			Vec::new(),
 			U256::from(1u32),
 			1000000,
@@ -504,8 +504,8 @@ fn runner_transactional_call_with_zero_gas_price_fails() {
 	// Transactional calls are rejected when `max_fee_per_gas == None`.
 	new_test_ext().execute_with(|| {
 		let res = <Test as Config>::Runner::call(
-			H160::default(),
-			H160::from_str("1000000000000000000000000000000000000001").unwrap(),
+			EvmAddress::default(),
+			EvmAddress::from_str("1000000000000000000000000000000000000001").unwrap(),
 			Vec::new(),
 			U256::from(1u32),
 			1000000,
@@ -526,8 +526,8 @@ fn runner_max_fee_per_gas_gte_max_priority_fee_per_gas() {
 	// Transactional and non transactional calls enforce `max_fee_per_gas >= max_priority_fee_per_gas`.
 	new_test_ext().execute_with(|| {
 		let res = <Test as Config>::Runner::call(
-			H160::default(),
-			H160::from_str("1000000000000000000000000000000000000001").unwrap(),
+			EvmAddress::default(),
+			EvmAddress::from_str("1000000000000000000000000000000000000001").unwrap(),
 			Vec::new(),
 			U256::from(1u32),
 			1000000,
@@ -541,8 +541,8 @@ fn runner_max_fee_per_gas_gte_max_priority_fee_per_gas() {
 		);
 		assert!(res.is_err());
 		let res = <Test as Config>::Runner::call(
-			H160::default(),
-			H160::from_str("1000000000000000000000000000000000000001").unwrap(),
+			EvmAddress::default(),
+			EvmAddress::from_str("1000000000000000000000000000000000000001").unwrap(),
 			Vec::new(),
 			U256::from(1u32),
 			1000000,

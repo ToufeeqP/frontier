@@ -31,7 +31,7 @@ mod transaction;
 use std::{collections::BTreeMap, marker::PhantomData, sync::Arc};
 
 use ethereum::{BlockV2 as EthereumBlock, TransactionV2 as EthereumTransaction};
-use ethereum_types::{H160, H256, H512, H64, U256, U64};
+use ethereum_types::{H160 as EvmAddress, H256, H512, H64, U256, U64};
 use jsonrpsee::core::{async_trait, RpcResult as Result};
 // Substrate
 use sc_client_api::backend::{Backend, StateBackend, StorageProvider};
@@ -139,11 +139,11 @@ where
 		self.syncing()
 	}
 
-	fn author(&self) -> Result<H160> {
+	fn author(&self) -> Result<EvmAddress> {
 		self.author()
 	}
 
-	fn accounts(&self) -> Result<Vec<H160>> {
+	fn accounts(&self) -> Result<Vec<EvmAddress>> {
 		self.accounts()
 	}
 
@@ -228,19 +228,24 @@ where
 	// State
 	// ########################################################################
 
-	fn balance(&self, address: H160, number: Option<BlockNumber>) -> Result<U256> {
+	fn balance(&self, address: EvmAddress, number: Option<BlockNumber>) -> Result<U256> {
 		self.balance(address, number)
 	}
 
-	fn storage_at(&self, address: H160, index: U256, number: Option<BlockNumber>) -> Result<H256> {
+	fn storage_at(
+		&self,
+		address: EvmAddress,
+		index: U256,
+		number: Option<BlockNumber>,
+	) -> Result<H256> {
 		self.storage_at(address, index, number)
 	}
 
-	fn transaction_count(&self, address: H160, number: Option<BlockNumber>) -> Result<U256> {
+	fn transaction_count(&self, address: EvmAddress, number: Option<BlockNumber>) -> Result<U256> {
 		self.transaction_count(address, number)
 	}
 
-	fn code_at(&self, address: H160, number: Option<BlockNumber>) -> Result<Bytes> {
+	fn code_at(&self, address: EvmAddress, number: Option<BlockNumber>) -> Result<Bytes> {
 		self.code_at(address, number)
 	}
 
@@ -431,8 +436,8 @@ fn transaction_build(
 	transaction.from = status.as_ref().map_or(
 		{
 			match pubkey {
-				Some(pk) => H160::from(H256::from(keccak_256(&pk))),
-				_ => H160::default(),
+				Some(pk) => EvmAddress::from(H256::from(keccak_256(&pk))),
+				_ => EvmAddress::default(),
 			}
 		},
 		|status| status.from,

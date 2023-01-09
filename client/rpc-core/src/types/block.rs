@@ -19,7 +19,7 @@
 use std::{collections::BTreeMap, ops::Deref};
 
 use crate::types::{Bytes, Transaction};
-use ethereum_types::{Bloom as H2048, H160, H256, H64, U256};
+use ethereum_types::{Bloom as H2048, H160 as EvmAddress, H256, H64, U256};
 use serde::{ser::Error, Serialize, Serializer};
 
 /// Block Transactions
@@ -75,9 +75,9 @@ pub struct Header {
 	#[serde(rename = "sha3Uncles")]
 	pub uncles_hash: H256,
 	/// Authors address
-	pub author: H160,
+	pub author: EvmAddress,
 	/// Alias of `author`
-	pub miner: H160,
+	pub miner: EvmAddress,
 	/// State root hash
 	pub state_root: H256,
 	/// Transactions root hash

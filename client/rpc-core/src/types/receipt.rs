@@ -17,7 +17,7 @@
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 use crate::types::Log;
-use ethereum_types::{Bloom as H2048, H160, H256, U256, U64};
+use ethereum_types::{Bloom as H2048, H160 as EvmAddress, H256, U256, U64};
 use serde::Serialize;
 
 /// Receipt
@@ -31,9 +31,9 @@ pub struct Receipt {
 	/// Block hash
 	pub block_hash: Option<H256>,
 	/// Sender
-	pub from: Option<H160>,
+	pub from: Option<EvmAddress>,
 	/// Recipient
-	pub to: Option<H160>,
+	pub to: Option<EvmAddress>,
 	/// Block number
 	pub block_number: Option<U256>,
 	/// Cumulative gas used
@@ -41,7 +41,7 @@ pub struct Receipt {
 	/// Gas used
 	pub gas_used: Option<U256>,
 	/// Contract address
-	pub contract_address: Option<H160>,
+	pub contract_address: Option<EvmAddress>,
 	/// Logs
 	pub logs: Vec<Log>,
 	/// State Root
