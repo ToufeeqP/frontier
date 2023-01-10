@@ -704,7 +704,7 @@ where
 	}
 
 	fn inc_nonce(&mut self, address: EvmAddress) {
-		let account_id = T::AddressMapping::into_account_id(address);
+		let account_id = T::AddressMapping::get_account_id(&address);
 		frame_system::Pallet::<T>::inc_account_nonce(&account_id);
 	}
 
@@ -765,8 +765,11 @@ where
 	}
 
 	fn transfer(&mut self, transfer: Transfer) -> Result<(), ExitError> {
-		let source = T::AddressMapping::into_account_id(transfer.source);
-		let target = T::AddressMapping::into_account_id(transfer.target);
+		if transfer.value.is_zero() {
+			return Ok(());
+		}
+		let source = T::AddressMapping::get_account_id(&transfer.source);
+		let target = T::AddressMapping::get_account_id(&transfer.target);
 
 		T::Currency::transfer(
 			&source,

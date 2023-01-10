@@ -13,6 +13,32 @@ dependencies = [
 ]
 
 [[package]]
+name = "acala-primitives"
+version = "2.11.0"
+source = "git+https://github.com/AcalaNetwork/Acala.git?tag=2.11.0#92372b0ea0c9c7c73ba0cdd5cc6cac4e66fce11b"
+dependencies = [
+ "bstringify",
+ "enumflags2",
+ "frame-support",
+ "hex-literal",
+ "module-evm-utility",
+ "module-evm-utility-macro",
+ "num_enum",
+ "nutsfinance-stable-asset",
+ "orml-traits 0.4.1-dev (git+https://github.com/AcalaNetwork/Acala.git?tag=2.11.0)",
+ "parity-scale-codec",
+ "parity-util-mem",
+ "paste",
+ "scale-info",
+ "serde",
+ "sp-api",
+ "sp-core",
+ "sp-io",
+ "sp-runtime",
+ "sp-std",
+]
+
+[[package]]
 name = "addr2line"
 version = "0.17.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -612,6 +638,12 @@ checksum = "ba3569f383e8f1598449f1a423e72e99569137b47740b1da11ef19af3d5c3223"
 dependencies = [
  "memchr",
 ]
+
+[[package]]
+name = "bstringify"
+version = "0.1.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "bd769563b4ea2953e2825c9e6b7470a5f55f67e0be00030bf3e390a2a6071f64"
 
 [[package]]
 name = "build-helper"
@@ -1270,6 +1302,17 @@ dependencies = [
 ]
 
 [[package]]
+name = "derivative"
+version = "2.2.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "fcc3dd5e9e9c0b295d6e1e4d811fb6f157d5ffd784b8d202fc62eac8035a770b"
+dependencies = [
+ "proc-macro2",
+ "quote",
+ "syn",
+]
+
+[[package]]
 name = "derive_more"
 version = "0.99.17"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1497,6 +1540,27 @@ dependencies = [
 ]
 
 [[package]]
+name = "enumflags2"
+version = "0.6.4"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "83c8d82922337cd23a15f88b70d8e4ef5f11da38dd7cdb55e84dd5de99695da0"
+dependencies = [
+ "enumflags2_derive",
+ "serde",
+]
+
+[[package]]
+name = "enumflags2_derive"
+version = "0.6.4"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "946ee94e3dbf58fdd324f9ce245c7b238d46a66f00e86a020b71996349e46cce"
+dependencies = [
+ "proc-macro2",
+ "quote",
+ "syn",
+]
+
+[[package]]
 name = "env_logger"
 version = "0.9.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1593,16 +1657,15 @@ checksum = "0206175f82b8d6bf6652ff7d71a1e27fd2e4efde587fd368662814d6ec1d9ce0"
 
 [[package]]
 name = "evm"
-version = "0.37.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "f4448c65b71e8e2b9718232d84d09045eeaaccb2320494e6bd6dbf7e58fec8ff"
+version = "0.36.0"
+source = "git+https://github.com/rust-blockchain/evm?rev=13240a8a551586fdef0b5028ed73af80b248092a#13240a8a551586fdef0b5028ed73af80b248092a"
 dependencies = [
  "auto_impl",
  "environmental",
  "ethereum",
- "evm-core",
- "evm-gasometer",
- "evm-runtime",
+ "evm-core 0.36.0",
+ "evm-gasometer 0.36.0",
+ "evm-runtime 0.36.0",
  "log",
  "parity-scale-codec",
  "primitive-types",
@@ -1610,6 +1673,60 @@ dependencies = [
  "scale-info",
  "serde",
  "sha3",
+]
+
+[[package]]
+name = "evm"
+version = "0.37.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "f4448c65b71e8e2b9718232d84d09045eeaaccb2320494e6bd6dbf7e58fec8ff"
+dependencies = [
+ "auto_impl",
+ "environmental",
+ "ethereum",
+ "evm-core 0.37.0",
+ "evm-gasometer 0.37.0",
+ "evm-runtime 0.37.0",
+ "log",
+ "parity-scale-codec",
+ "primitive-types",
+ "rlp",
+ "scale-info",
+ "serde",
+ "sha3",
+]
+
+[[package]]
+name = "evm-accounts"
+version = "2.11.0"
+dependencies = [
+ "acala-primitives",
+ "frame-support",
+ "frame-system",
+ "libsecp256k1",
+ "module-evm-utility-macro",
+ "module-support",
+ "orml-currencies",
+ "orml-tokens 0.4.1-dev (git+https://github.com/open-web3-stack/open-runtime-module-library.git?branch=polkadot-v0.9.31)",
+ "orml-traits 0.4.1-dev (git+https://github.com/open-web3-stack/open-runtime-module-library.git?branch=polkadot-v0.9.31)",
+ "pallet-balances",
+ "parity-scale-codec",
+ "scale-info",
+ "sp-core",
+ "sp-io",
+ "sp-runtime",
+ "sp-std",
+]
+
+[[package]]
+name = "evm-core"
+version = "0.36.0"
+source = "git+https://github.com/rust-blockchain/evm?rev=13240a8a551586fdef0b5028ed73af80b248092a#13240a8a551586fdef0b5028ed73af80b248092a"
+dependencies = [
+ "parity-scale-codec",
+ "primitive-types",
+ "scale-info",
+ "serde",
 ]
 
 [[package]]
@@ -1626,14 +1743,37 @@ dependencies = [
 
 [[package]]
 name = "evm-gasometer"
+version = "0.36.0"
+source = "git+https://github.com/rust-blockchain/evm?rev=13240a8a551586fdef0b5028ed73af80b248092a#13240a8a551586fdef0b5028ed73af80b248092a"
+dependencies = [
+ "environmental",
+ "evm-core 0.36.0",
+ "evm-runtime 0.36.0",
+ "primitive-types",
+]
+
+[[package]]
+name = "evm-gasometer"
 version = "0.37.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "a8b93c59c54fc26522d842f0e0d3f8e8be331c776df18ff3e540b53c2f64d509"
 dependencies = [
  "environmental",
- "evm-core",
- "evm-runtime",
+ "evm-core 0.37.0",
+ "evm-runtime 0.37.0",
  "primitive-types",
+]
+
+[[package]]
+name = "evm-runtime"
+version = "0.36.0"
+source = "git+https://github.com/rust-blockchain/evm?rev=13240a8a551586fdef0b5028ed73af80b248092a#13240a8a551586fdef0b5028ed73af80b248092a"
+dependencies = [
+ "auto_impl",
+ "environmental",
+ "evm-core 0.36.0",
+ "primitive-types",
+ "sha3",
 ]
 
 [[package]]
@@ -1644,7 +1784,7 @@ checksum = "c79b9459ce64f1a28688397c4013764ce53cd57bb84efc16b5187fa9b05b13ad"
 dependencies = [
  "auto_impl",
  "environmental",
- "evm-core",
+ "evm-core 0.37.0",
  "primitive-types",
  "sha3",
 ]
@@ -1770,7 +1910,7 @@ dependencies = [
  "beefy-primitives",
  "ethereum",
  "ethereum-types",
- "evm",
+ "evm 0.37.0",
  "fc-db",
  "fc-rpc-core",
  "fp-ethereum",
@@ -1980,7 +2120,7 @@ dependencies = [
 name = "fp-evm"
 version = "3.0.0-dev"
 dependencies = [
- "evm",
+ "evm 0.37.0",
  "frame-support",
  "parity-scale-codec",
  "serde",
@@ -2304,6 +2444,7 @@ dependencies = [
 name = "frontier-template-runtime"
 version = "0.0.0"
 dependencies = [
+ "evm-accounts",
  "fp-rpc",
  "fp-self-contained",
  "frame-benchmarking",
@@ -2707,6 +2848,12 @@ name = "hex"
 version = "0.4.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "7f24254aa9a54b5c858eaee2f5bccdb46aaf0e486a595ed5fd8f86ba55232a70"
+
+[[package]]
+name = "hex-literal"
+version = "0.3.4"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "7ebdb29d2ea9ed0083cd8cece49bbd968021bd99b0849edb4a9a7ee0fdf6a4e0"
 
 [[package]]
 name = "hmac"
@@ -3950,6 +4097,50 @@ dependencies = [
 ]
 
 [[package]]
+name = "module-evm-utility"
+version = "2.11.0"
+source = "git+https://github.com/AcalaNetwork/Acala.git?tag=2.11.0#92372b0ea0c9c7c73ba0cdd5cc6cac4e66fce11b"
+dependencies = [
+ "ethereum",
+ "evm 0.36.0",
+ "evm-gasometer 0.36.0",
+ "evm-runtime 0.36.0",
+ "sha3",
+ "sp-std",
+]
+
+[[package]]
+name = "module-evm-utility-macro"
+version = "2.11.0"
+source = "git+https://github.com/AcalaNetwork/Acala.git?tag=2.11.0#92372b0ea0c9c7c73ba0cdd5cc6cac4e66fce11b"
+dependencies = [
+ "module-evm-utility",
+ "proc-macro2",
+ "quote",
+ "syn",
+]
+
+[[package]]
+name = "module-support"
+version = "2.11.0"
+source = "git+https://github.com/AcalaNetwork/Acala.git?tag=2.11.0#92372b0ea0c9c7c73ba0cdd5cc6cac4e66fce11b"
+dependencies = [
+ "acala-primitives",
+ "frame-support",
+ "impl-trait-for-tuples",
+ "nutsfinance-stable-asset",
+ "orml-tokens 0.4.1-dev (git+https://github.com/AcalaNetwork/Acala.git?tag=2.11.0)",
+ "parity-scale-codec",
+ "scale-info",
+ "serde",
+ "sp-core",
+ "sp-io",
+ "sp-runtime",
+ "sp-std",
+ "xcm",
+]
+
+[[package]]
 name = "multiaddr"
 version = "0.14.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -4314,6 +4505,20 @@ dependencies = [
 ]
 
 [[package]]
+name = "nutsfinance-stable-asset"
+version = "0.1.0"
+source = "git+https://github.com/AcalaNetwork/Acala.git?tag=2.11.0#92372b0ea0c9c7c73ba0cdd5cc6cac4e66fce11b"
+dependencies = [
+ "frame-support",
+ "frame-system",
+ "parity-scale-codec",
+ "scale-info",
+ "sp-core",
+ "sp-runtime",
+ "sp-std",
+]
+
+[[package]]
 name = "object"
 version = "0.29.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -4357,6 +4562,115 @@ name = "openssl-probe"
 version = "0.1.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "ff011a302c396a5197692431fc1948019154afc178baf7d8e37367442a4601cf"
+
+[[package]]
+name = "orml-currencies"
+version = "0.4.1-dev"
+source = "git+https://github.com/open-web3-stack/open-runtime-module-library.git?branch=polkadot-v0.9.31#034f66d569d60b7edc0933f42492db708ba8974e"
+dependencies = [
+ "frame-support",
+ "frame-system",
+ "orml-traits 0.4.1-dev (git+https://github.com/open-web3-stack/open-runtime-module-library.git?branch=polkadot-v0.9.31)",
+ "orml-utilities 0.4.1-dev (git+https://github.com/open-web3-stack/open-runtime-module-library.git?branch=polkadot-v0.9.31)",
+ "parity-scale-codec",
+ "scale-info",
+ "sp-io",
+ "sp-runtime",
+ "sp-std",
+]
+
+[[package]]
+name = "orml-tokens"
+version = "0.4.1-dev"
+source = "git+https://github.com/AcalaNetwork/Acala.git?tag=2.11.0#92372b0ea0c9c7c73ba0cdd5cc6cac4e66fce11b"
+dependencies = [
+ "frame-support",
+ "frame-system",
+ "orml-traits 0.4.1-dev (git+https://github.com/AcalaNetwork/Acala.git?tag=2.11.0)",
+ "parity-scale-codec",
+ "scale-info",
+ "serde",
+ "sp-runtime",
+ "sp-std",
+]
+
+[[package]]
+name = "orml-tokens"
+version = "0.4.1-dev"
+source = "git+https://github.com/open-web3-stack/open-runtime-module-library.git?branch=polkadot-v0.9.31#034f66d569d60b7edc0933f42492db708ba8974e"
+dependencies = [
+ "frame-support",
+ "frame-system",
+ "orml-traits 0.4.1-dev (git+https://github.com/open-web3-stack/open-runtime-module-library.git?branch=polkadot-v0.9.31)",
+ "parity-scale-codec",
+ "scale-info",
+ "sp-runtime",
+ "sp-std",
+]
+
+[[package]]
+name = "orml-traits"
+version = "0.4.1-dev"
+source = "git+https://github.com/AcalaNetwork/Acala.git?tag=2.11.0#92372b0ea0c9c7c73ba0cdd5cc6cac4e66fce11b"
+dependencies = [
+ "frame-support",
+ "impl-trait-for-tuples",
+ "num-traits",
+ "orml-utilities 0.4.1-dev (git+https://github.com/AcalaNetwork/Acala.git?tag=2.11.0)",
+ "parity-scale-codec",
+ "scale-info",
+ "serde",
+ "sp-io",
+ "sp-runtime",
+ "sp-std",
+ "xcm",
+]
+
+[[package]]
+name = "orml-traits"
+version = "0.4.1-dev"
+source = "git+https://github.com/open-web3-stack/open-runtime-module-library.git?branch=polkadot-v0.9.31#034f66d569d60b7edc0933f42492db708ba8974e"
+dependencies = [
+ "frame-support",
+ "impl-trait-for-tuples",
+ "num-traits",
+ "orml-utilities 0.4.1-dev (git+https://github.com/open-web3-stack/open-runtime-module-library.git?branch=polkadot-v0.9.31)",
+ "parity-scale-codec",
+ "scale-info",
+ "serde",
+ "sp-io",
+ "sp-runtime",
+ "sp-std",
+ "xcm",
+]
+
+[[package]]
+name = "orml-utilities"
+version = "0.4.1-dev"
+source = "git+https://github.com/AcalaNetwork/Acala.git?tag=2.11.0#92372b0ea0c9c7c73ba0cdd5cc6cac4e66fce11b"
+dependencies = [
+ "frame-support",
+ "parity-scale-codec",
+ "scale-info",
+ "serde",
+ "sp-io",
+ "sp-runtime",
+ "sp-std",
+]
+
+[[package]]
+name = "orml-utilities"
+version = "0.4.1-dev"
+source = "git+https://github.com/open-web3-stack/open-runtime-module-library.git?branch=polkadot-v0.9.31#034f66d569d60b7edc0933f42492db708ba8974e"
+dependencies = [
+ "frame-support",
+ "parity-scale-codec",
+ "scale-info",
+ "serde",
+ "sp-io",
+ "sp-runtime",
+ "sp-std",
+]
 
 [[package]]
 name = "os_str_bytes"
@@ -4475,7 +4789,7 @@ version = "4.0.0-dev"
 dependencies = [
  "ethereum",
  "ethereum-types",
- "evm",
+ "evm 0.37.0",
  "fp-consensus",
  "fp-ethereum",
  "fp-evm",
@@ -4504,13 +4818,14 @@ name = "pallet-evm"
 version = "6.0.0-dev"
 dependencies = [
  "environmental",
- "evm",
+ "evm 0.37.0",
  "fp-evm",
  "frame-benchmarking",
  "frame-support",
  "frame-system",
  "hex",
  "log",
+ "module-support",
  "pallet-balances",
  "pallet-timestamp",
  "parity-scale-codec",
@@ -4620,7 +4935,7 @@ dependencies = [
 name = "pallet-evm-test-vector-support"
 version = "1.0.0-dev"
 dependencies = [
- "evm",
+ "evm 0.37.0",
  "fp-evm",
  "hex",
  "serde",
@@ -9452,6 +9767,31 @@ dependencies = [
  "curve25519-dalek 3.2.0",
  "rand_core 0.5.1",
  "zeroize",
+]
+
+[[package]]
+name = "xcm"
+version = "0.9.31"
+source = "git+https://github.com/paritytech/polkadot?branch=release-v0.9.31#32dd0c9cfcd1a1bda821747f6ab334f0e3577558"
+dependencies = [
+ "derivative",
+ "impl-trait-for-tuples",
+ "log",
+ "parity-scale-codec",
+ "scale-info",
+ "sp-runtime",
+ "xcm-procedural",
+]
+
+[[package]]
+name = "xcm-procedural"
+version = "0.9.31"
+source = "git+https://github.com/paritytech/polkadot?branch=release-v0.9.31#32dd0c9cfcd1a1bda821747f6ab334f0e3577558"
+dependencies = [
+ "Inflector",
+ "proc-macro2",
+ "quote",
+ "syn",
 ]
 
 [[package]]

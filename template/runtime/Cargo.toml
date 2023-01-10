@@ -60,6 +60,8 @@ pallet-evm-precompile-modexp = { path = "../../frame/evm/precompile/modexp", def
 pallet-evm-precompile-sha3fips = { path = "../../frame/evm/precompile/sha3fips", default-features = false }
 pallet-evm-precompile-simple = { path = "../../frame/evm/precompile/simple", default-features = false }
 pallet-hotfix-sufficients = { path = "../../frame/hotfix-sufficients", default-features = false }
+# Version which is compatible with v0.9.31
+evm-accounts = { path = "../../frame/evm-accounts", default-features = false }
 
 [build-dependencies]
 substrate-wasm-builder = { version = "5.0.0-dev", git = "https://github.com/paritytech/substrate", branch = "polkadot-v0.9.31" }
@@ -114,6 +116,7 @@ std = [
 	"pallet-evm-precompile-sha3fips/std",
 	"pallet-evm-precompile-simple/std",
 	"pallet-hotfix-sufficients/std",
+	"evm-accounts/std",
 ]
 runtime-benchmarks = [
 	"frame-benchmarking",
@@ -125,4 +128,5 @@ runtime-benchmarks = [
 	"pallet-ethereum/runtime-benchmarks",
 	"pallet-evm/runtime-benchmarks",
 	"pallet-hotfix-sufficients/runtime-benchmarks",
+	"evm-accounts/runtime-benchmarks",
 ]

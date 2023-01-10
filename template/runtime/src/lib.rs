@@ -40,8 +40,9 @@ use pallet_transaction_payment::CurrencyAdapter;
 use fp_rpc::TransactionStatus;
 use pallet_ethereum::{Call::transact, Transaction as EthereumTransaction};
 use pallet_evm::{
-	Account as EVMAccount, EnsureAddressTruncated, FeeCalculator, HashedAddressMapping, Runner,
+	Account as EVMAccount, EnsureAddressTruncated, FeeCalculator, Runner,
 };
+use evm_accounts::EvmAddressMapping;
 
 // A few exports that help ease life for downstream crates.
 pub use frame_support::{
@@ -179,6 +180,7 @@ impl frame_system::Config for Runtime {
 	type AccountId = AccountId;
 	/// The lookup mechanism to get account ID from whatever is passed in dispatchers.
 	type Lookup = AccountIdLookup<AccountId, ()>;
+	// type Lookup = (AccountIdLookup<AccountId, AccountIndex>, EvmAccounts);
 	/// The header type.
 	type Header = generic::Header<BlockNumber, BlakeTwo256>;
 	/// The ubiquitous event type.
@@ -321,7 +323,8 @@ impl pallet_evm::Config for Runtime {
 	type BlockHashMapping = pallet_ethereum::EthereumBlockHashMapping<Self>;
 	type CallOrigin = EnsureAddressTruncated;
 	type WithdrawOrigin = EnsureAddressTruncated;
-	type AddressMapping = HashedAddressMapping<BlakeTwo256>;
+	// type AddressMapping = HashedAddressMapping<BlakeTwo256>;
+	type AddressMapping = EvmAddressMapping<Runtime>;
 	type Currency = Balances;
 	type RuntimeEvent = RuntimeEvent;
 	type PrecompilesType = FrontierPrecompiles<Self>;
@@ -372,8 +375,17 @@ impl pallet_base_fee::Config for Runtime {
 }
 
 impl pallet_hotfix_sufficients::Config for Runtime {
-	type AddressMapping = HashedAddressMapping<BlakeTwo256>;
+	type AddressMapping = EvmAddressMapping<Runtime>;
 	type WeightInfo = pallet_hotfix_sufficients::weights::SubstrateWeight<Runtime>;
+}
+
+impl evm_accounts::Config for Runtime {
+	type RuntimeEvent = RuntimeEvent;
+	type Currency = Balances;
+	type AddressMapping = EvmAddressMapping<Runtime>;
+	type TransferAll = ();
+	type ChainId = EVMChainId;
+	type WeightInfo = evm_accounts::weights::AcalaWeight<Runtime>;
 }
 
 // Create the runtime by composing the FRAME pallets that were previously configured.
@@ -391,6 +403,7 @@ construct_runtime!(
 		TransactionPayment: pallet_transaction_payment,
 		Sudo: pallet_sudo,
 		Ethereum: pallet_ethereum,
+		EvmAccounts: evm_accounts,
 		EVM: pallet_evm,
 		EVMChainId: pallet_evm_chain_id,
 		DynamicFee: pallet_dynamic_fee,

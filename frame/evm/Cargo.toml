@@ -37,6 +37,8 @@ pallet-timestamp = { version = "4.0.0-dev", git = "https://github.com/paritytech
 
 # Frontier
 fp-evm = { version = "3.0.0-dev", path = "../../primitives/evm", default-features = false }
+# Acala
+module-support = { version = "2.11.0", git = "https://github.com/AcalaNetwork/Acala.git", default-features = false, tag = "2.11.0" }
 
 [dev-dependencies]
 pallet-balances = { version = "4.0.0-dev", git = "https://github.com/paritytech/substrate", branch = "polkadot-v0.9.31" }

@@ -79,7 +79,7 @@ where
 			}
 		}
 
-		let origin = T::AddressMapping::into_account_id(context.caller);
+		let origin = T::AddressMapping::get_account_id(&context.caller);
 
 		match call.dispatch(Some(origin).into()) {
 			Ok(post_info) => {

@@ -90,6 +90,7 @@ pub use fp_evm::{
 	LinearCostPrecompile, Log, Precompile, PrecompileFailure, PrecompileHandle, PrecompileOutput,
 	PrecompileResult, PrecompileSet, Vicinity,
 };
+pub use module_support::AddressMapping;
 
 pub use self::{
 	pallet::*,
@@ -167,7 +168,7 @@ pub mod pallet {
 			value: BalanceOf<T>,
 		) -> DispatchResult {
 			let destination = T::WithdrawOrigin::ensure_address_origin(&address, origin)?;
-			let address_account_id = T::AddressMapping::into_account_id(address);
+			let address_account_id = T::AddressMapping::get_account_id(&address);
 
 			T::Currency::transfer(
 				&address_account_id,
@@ -468,7 +469,7 @@ pub mod pallet {
 			const MAX_ACCOUNT_NONCE: usize = 100;
 
 			for (address, account) in &self.accounts {
-				let account_id = T::AddressMapping::into_account_id(*address);
+				let account_id = T::AddressMapping::get_account_id(address);
 
 				// ASSUME: in one single EVM transaction, the nonce will not increase more than
 				// `u128::max_value()`.
@@ -603,32 +604,32 @@ where
 	}
 }
 
-pub trait AddressMapping<A> {
-	fn into_account_id(address: EvmAddress) -> A;
-}
+// pub trait AddressMapping<A> {
+// 	fn into_account_id(address: EvmAddress) -> A;
+// }
 
-/// Identity address mapping.
-pub struct IdentityAddressMapping;
+// /// Identity address mapping.
+// pub struct IdentityAddressMapping;
 
-impl AddressMapping<EvmAddress> for IdentityAddressMapping {
-	fn into_account_id(address: EvmAddress) -> EvmAddress {
-		address
-	}
-}
+// impl AddressMapping<EvmAddress> for IdentityAddressMapping {
+// 	fn into_account_id(address: EvmAddress) -> EvmAddress {
+// 		address
+// 	}
+// }
 
-/// Hashed address mapping.
-pub struct HashedAddressMapping<H>(sp_std::marker::PhantomData<H>);
+// /// Hashed address mapping.
+// pub struct HashedAddressMapping<H>(sp_std::marker::PhantomData<H>);
 
-impl<H: Hasher<Out = H256>> AddressMapping<AccountId32> for HashedAddressMapping<H> {
-	fn into_account_id(address: EvmAddress) -> AccountId32 {
-		let mut data = [0u8; 24];
-		data[0..4].copy_from_slice(b"evm:");
-		data[4..24].copy_from_slice(&address[..]);
-		let hash = H::hash(&data);
+// impl<H: Hasher<Out = H256>> AddressMapping<AccountId32> for HashedAddressMapping<H> {
+// 	fn into_account_id(address: EvmAddress) -> AccountId32 {
+// 		let mut data = [0u8; 24];
+// 		data[0..4].copy_from_slice(b"evm:");
+// 		data[4..24].copy_from_slice(&address[..]);
+// 		let hash = H::hash(&data);
 
-		AccountId32::from(Into::<[u8; 32]>::into(hash))
-	}
-}
+// 		AccountId32::from(Into::<[u8; 32]>::into(hash))
+// 	}
+// }
 
 /// A trait for getting a block hash by number.
 pub trait BlockHashMapping {
@@ -689,7 +690,7 @@ impl<T: Config> Pallet<T> {
 	/// Remove an account.
 	pub fn remove_account(address: &EvmAddress) {
 		if <AccountCodes<T>>::contains_key(address) {
-			let account_id = T::AddressMapping::into_account_id(*address);
+			let account_id = T::AddressMapping::get_account_id(address);
 			let _ = frame_system::Pallet::<T>::dec_sufficients(&account_id);
 		}
 
@@ -705,7 +706,7 @@ impl<T: Config> Pallet<T> {
 		}
 
 		if !<AccountCodes<T>>::contains_key(&address) {
-			let account_id = T::AddressMapping::into_account_id(address);
+			let account_id = T::AddressMapping::get_account_id(&address);
 			let _ = frame_system::Pallet::<T>::inc_sufficients(&account_id);
 		}
 
@@ -714,7 +715,7 @@ impl<T: Config> Pallet<T> {
 
 	/// Get the account basic in EVM format.
 	pub fn account_basic(address: &EvmAddress) -> (Account, frame_support::weights::Weight) {
-		let account_id = T::AddressMapping::into_account_id(*address);
+		let account_id = T::AddressMapping::get_account_id(address);
 
 		let nonce = frame_system::Pallet::<T>::account_nonce(&account_id);
 		// keepalive `true` takes into account ExistentialDeposit as part of what's considered liquid balance.
@@ -791,7 +792,7 @@ where
 		if fee.is_zero() {
 			return Ok(None);
 		}
-		let account_id = T::AddressMapping::into_account_id(*who);
+		let account_id = T::AddressMapping::get_account_id(who);
 		let imbalance = C::withdraw(
 			&account_id,
 			fee.unique_saturated_into(),
@@ -809,7 +810,7 @@ where
 		already_withdrawn: Self::LiquidityInfo,
 	) -> Self::LiquidityInfo {
 		if let Some(paid) = already_withdrawn {
-			let account_id = T::AddressMapping::into_account_id(*who);
+			let account_id = T::AddressMapping::get_account_id(who);
 
 			// Calculate how much refund we should return
 			let refund_amount = paid
@@ -856,7 +857,7 @@ where
 	fn pay_priority_fee(tip: Self::LiquidityInfo) {
 		// Default Ethereum behaviour: issue the tip to the block author.
 		if let Some(tip) = tip {
-			let account_id = T::AddressMapping::into_account_id(<Pallet<T>>::find_author());
+			let account_id = T::AddressMapping::get_account_id(&<Pallet<T>>::find_author());
 			let _ = C::deposit_into_existing(&account_id, tip.peek());
 		}
 	}

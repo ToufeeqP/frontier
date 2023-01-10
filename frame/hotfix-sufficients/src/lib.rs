@@ -82,7 +82,7 @@ pub mod pallet {
 			);
 
 			for address in addresses {
-				let account_id = T::AddressMapping::into_account_id(address);
+				let account_id = T::AddressMapping::get_account_id(&address);
 				let nonce = frame_system::Pallet::<T>::account_nonce(&account_id);
 				let refs = frame_system::Pallet::<T>::consumers(&account_id)
 					.saturating_add(frame_system::Pallet::<T>::providers(&account_id))
